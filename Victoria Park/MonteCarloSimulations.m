@@ -82,28 +82,19 @@ function perform_mcs(N)
         
         pw = PoolWaitbar(N, 'Simulation in progress, please wait ...');
         parfor i = 1:N
-            [pos_e,cpu_time,Neff] = main(i,false,L,J,n);
-            
-            POS_E{i,1} = pos_e;
-            CPU{i,1} = cpu_time;
-            N_EFF{i,1} = Neff;
-            
+            [POS_E{i,1},CPU{i,1},N_EFF{i,1}] = main(i,false,L,J,n);
             increment(pw)
         end
             
         delete(pw)
-        
-        pos_e = cell2mat(POS_E);
-        cpu = cell2mat(CPU);
-        
+
         fprintf('J:%d, L:%d, N:%d, pos=%.2f [m], cpu=%.2f [ms], Time=%.2f [s]\n', ...
             J, ...
             L, ...
             n, ...
-            sqrt(mean(pos_e.^2,'all','omitnan')), ...
-            mean(cpu,'all')*1000, ...
-            mean(sum(cpu,2)));
-        
+            sqrt(mean(cell2mat(POS_E).^2,'all','omitnan')), ...
+            mean(cell2mat(CPU),'all')*1000, ...
+            mean(sum(cell2mat(CPU),2)));
         
         clearvars -except N POS_E CPU N_EFF J L N_particle i n
         
@@ -123,7 +114,7 @@ function compute_performance_metrics
     filename = 'results/';
     file = [filename,'PHD_J%dL%dN%d.mat'];
 
-    for n = N_set
+    for n = N_particle
         fprintf('\n')
 
         % load data
@@ -146,54 +137,3 @@ function compute_performance_metrics
 
     end
 end
-
-
-function vp_computational_overhead
-    N = 5;
-    N_set = fliplr(logspace(0,2,3));
-    L_set = [0 0 5 5];
-    J_set = [0 1 1 50];
-    resample_flag = 0;
-    
-    for n = N_set
-        for i = [4]
-            neff_T = 0;
-            POS_E = cell(N,1);
-            CPU = cell(N,1);
-            N_EFF = cell(N,1);
-            
-            pw = PoolWaitbar(N, 'Simulation in progress, please wait ...');
-            for ii = 1:N
-                [pos_e,cpu_time,Neff] = main(ii,false,L_set(i),J_set(i),n,resample_flag,neff_T);
-                
-                POS_E{ii,1} = pos_e;
-                CPU{ii,1} = cpu_time;
-                N_EFF{ii,1} = Neff;
-                
-                increment(pw)
-%                 pause(max([10 sum(cpu_time,'all')]));
-            end
-            delete(pw)
-            
-            pos_e = cell2mat(POS_E);
-            cpu = cell2mat(CPU);
-            neff = cell2mat(N_EFF);
-            
-            fprintf('J:%d, L:%d, N:%d, pos=%.2f [m], cpu=%.2f [ms], Time=%.2f [s], Neff=%.2f [%%]\n', ...
-                J_set(i), ...
-                L_set(i), ...
-                n, ...
-                sqrt(mean(pos_e.^2,'all','omitnan')), ...
-                mean(cpu,'all')*1000, ...
-                mean(sum(cpu,2)), ...
-                mean(neff,'all','omitnan')*100);
-            
-            
-            clearvars -except N_eff N POS_E THETA_E GOSPA_D CPU N_EFF J_set L_set N_set resample_flag i ii n
-            
-            filename = strcat('results/PHD_J',num2str(J_set(i)),'L',num2str(L_set(i)),'N',num2str(n),'.mat');
-            save(filename,'POS_E','CPU','N_EFF')
-        end
-    end
-end
-
