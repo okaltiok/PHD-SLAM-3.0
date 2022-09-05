@@ -30,10 +30,6 @@ function MonteCarloSimulations
             perform_mcs(N)
         case 3
             compute_performance_metrics
-        case 4
-            vp_computational_overhead
-        case 5
-            vp_parameters_mcs(N)
         otherwise
             fprintf('Incorrect option\n')
     end
