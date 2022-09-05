@@ -21,7 +21,7 @@ function MonteCarloSimulations
     option = 1;
     
     % number of simulations
-    N = 10;
+    N = 100;
     
     switch option
         case 1
@@ -71,11 +71,12 @@ function perform_mcs(N)
     shared_m_path = strjoin([folderParts(1:end-1) 'Shared Files\shared m files'], filesep);
     if ~contains(path,shared_m_path), addpath(shared_m_path); end
 
-    N_set = logspace(0,2,3);
     L = 5;
     J = 50;
-
-    for n = N_set
+    N_particle = logspace(0,2,3);
+    resample = true;
+    
+    for n = N_particle
         POS_E = cell(N,1);
         THETA_E = cell(N,1);
         GOSPA_D = cell(N,1);
@@ -83,14 +84,17 @@ function perform_mcs(N)
         N_EFF = cell(N,1);
 
         pw = PoolWaitbar(N, 'Simulation in progress, please wait ...');
-        parfor ii = 1:N
-            [pos_e,theta_e,gospa_d,cpu_time,Neff] = main(ii,false,L,J,n);
+        
+        % If Parallel Computing Toolbox isn't installed, replace
+        % parfor-loop with a regular for-loop.
+        parfor i = 1:N
+            [pos_e,theta_e,gospa_d,cpu_time,Neff] = main(i,false,L,J,n,resample);
 
-            POS_E{ii,1} = pos_e;
-            THETA_E{ii,1} = theta_e;
-            GOSPA_D{ii,1} = gospa_d;
-            CPU{ii,1} = cpu_time;
-            N_EFF{ii,1} = Neff;
+            POS_E{i,1} = pos_e;
+            THETA_E{i,1} = theta_e;
+            GOSPA_D{i,1} = gospa_d;
+            CPU{i,1} = cpu_time;
+            N_EFF{i,1} = Neff;
 
             increment(pw)
         end
@@ -102,7 +106,7 @@ function perform_mcs(N)
         gospa_d = cell2mat(GOSPA_D);
         cpu = cell2mat(CPU);
         neff = cell2mat(N_EFF);
-        if resample_flag == 1
+        if resample == 1
             resamp = (sum(neff <= 0.5,'all')./numel(neff));
         else
             resamp = 0;
@@ -120,7 +124,7 @@ function perform_mcs(N)
             mean(cpu,'all')*1000, ...
             mean(sum(cpu,2)));
 
-        clearvars -except N_eff N POS_E THETA_E GOSPA_D CPU N_EFF J L N_set resample_flag neff_T i ii n
+        clearvars -except N_eff N POS_E THETA_E GOSPA_D CPU N_EFF J L N_particle resample i n
 
         filename = strcat('results/PHD_J',num2str(J),'L',num2str(L),'N',num2str(n),'.mat');
         save(filename,'POS_E','THETA_E','GOSPA_D','CPU','N_EFF')
@@ -129,7 +133,7 @@ end
 
 function compute_performance_metrics
     % define variables
-    N_set = logspace(0,2,3);
+    N_particle = logspace(0,2,3);
     L = 5;
     J = 50;
     
@@ -137,7 +141,7 @@ function compute_performance_metrics
     filename = 'results/';
     file = [filename,'PHD_J%dL%dN%d.mat'];
 
-    for n = N_set
+    for n = N_particle
         fprintf('\n')
         % load data
         try
