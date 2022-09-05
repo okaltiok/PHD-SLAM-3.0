@@ -33,7 +33,8 @@ function varargout = main(varargin)
     
     % load simulation parameters
     if nargin == 0
-        [params,sim,~] = simulation_setup(1,'load');
+        file_idx = 2;
+        [params,sim,~] = simulation_setup(file_idx,'load');
         maxNumCompThreads(1); % force maximum number of computation threads to one
         clear plot_estimate
     else
