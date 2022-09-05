@@ -9,6 +9,7 @@ function varargout = main(varargin)
     %    varargin{4}         - J, max number of GMM OID components
     %    varargin{5}         - N, particle number
     %    varargin{6}         - resample, true or false
+    %    varargin{7}         - N_eff, effective sample size
     %
    
     % Output:
@@ -35,6 +36,15 @@ function varargout = main(varargin)
     if nargin == 0
         [params,sim,~] = simulation_setup(1,'load');
         maxNumCompThreads(1); % force maximum number of computation threads to one
+        params.f_mode = false; 
+%         params.L = 5;
+%         params.J = 1;
+%         params.DA_threshold = log(10^(-9));
+%         params.resample = true;
+%         params.N_particle = 100;
+%         params.N_eff = 50;
+%         params.MEX = false;
+        
         clear plot_estimate
     else
         [params,sim,~] = simulation_setup(varargin{1},'load');
@@ -43,11 +53,7 @@ function varargout = main(varargin)
         params.J = varargin{4};
         params.N_particle = varargin{5};
         params.resample = varargin{6};
-        if params.resample
-            params.N_eff = params.N_particle/2;
-        else
-            params.N_eff = 0;
-        end
+        params.N_eff = varargin{7};
     end 
     
     % get current folder and define path names
@@ -114,6 +120,7 @@ function varargout = main(varargin)
         plot_estimate(obj,est,y,k,sim,params)
     end
 
+    params.f_mode = true;
     [sim,pos_e,theta_e,gospa_d] = performance_summary(params,sim);
     
     if nargin > 0 
