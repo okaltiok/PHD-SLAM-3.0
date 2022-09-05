@@ -35,7 +35,7 @@ function [params,sim,filename] = simulation_setup(file_idx,mode)
                 j = 0;
                 while 1
                     try
-                        filename = ['.\measurements\journal_measurements\measurement_' num2str(file_idx)];
+                        filename = ['.\measurements\measurement_' num2str(file_idx)];
                         load(filename), break;
                     catch
                         j = j + 1;

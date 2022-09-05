@@ -8,8 +8,6 @@ function varargout = main(varargin)
     %    varargin{3}         - L, max number of OID iterations
     %    varargin{4}         - J, max number of GMM OID components
     %    varargin{5}         - N, particle number
-    %    varargin{6}         - resample, true or false
-    %    varargin{7}         - N_eff, effective sample size
     %    
     % Output:
     %    varargout{1}        - (1 X T) vector that containts the RMSE of vehicle for each time instant
@@ -33,15 +31,6 @@ function varargout = main(varargin)
     if nargin == 0
         [params,sim,~] = simulation_setup(1,'load');
         maxNumCompThreads(1); % force maximum number of computation threads to one
-%         params.f_mode = false; 
-%         params.L = 5;
-%         params.J = 1;
-%         params.DA_threshold = log(10^(-9));
-%         params.resample = true;
-%         params.N_particle = 10;
-%         params.N_eff = params.N_particle/2;
-%         params.MEX = false;
-        
         clear plot_estimate
     else
         [params,sim,~] = simulation_setup(varargin{1},'load');
@@ -49,11 +38,8 @@ function varargout = main(varargin)
         params.L = varargin{3};
         params.J = varargin{4};
         params.N_particle = varargin{5};
-        params.resample = varargin{6};
-        params.N_eff = varargin{7};
     end 
      
-
     % get current folder and define path names
     folderParts = strsplit(pwd, filesep);
     mex_path = strjoin([folderParts 'compiled_mex'], filesep);
@@ -134,7 +120,6 @@ function varargout = main(varargin)
         end
     end
     
-%     params.f_mode = true;
     [sim,pos_e] = performance_summary(params,sim);
 
     if nargin > 0 
