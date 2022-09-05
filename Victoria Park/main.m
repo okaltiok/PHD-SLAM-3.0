@@ -29,7 +29,8 @@ function varargout = main(varargin)
     
     % load simulation parameters
     if nargin == 0
-        [params,sim,~] = simulation_setup(1,'load');
+        file_idx = 80;
+        [params,sim,~] = simulation_setup(file_idx,'load');
         maxNumCompThreads(1); % force maximum number of computation threads to one
         clear plot_estimate
     else
@@ -45,9 +46,11 @@ function varargout = main(varargin)
     mex_path = strjoin([folderParts 'compiled_mex'], filesep);
     m_path = strjoin([folderParts(1:end-1) 'Shared Files\m source'], filesep);
     shared_m_path = strjoin([folderParts(1:end-1) 'Shared Files\shared m files'], filesep);
+    synthetic_data_path = strjoin([folderParts(1:end-1) 'Synthetic Data\compiled_mex'], filesep); 
     
     % add / remove paths
     if ~contains(path,shared_m_path), addpath(shared_m_path); end
+    if contains(path,synthetic_data_path), rmpath(synthetic_data_path); end
     if params.MEX
         if ~contains(path,mex_path), addpath(mex_path); end
         if contains(path,m_path), rmpath(m_path); end
@@ -127,5 +130,5 @@ function varargout = main(varargin)
         varargout{2} = sim.cpu_time;
         varargout{3} = sim.Neff;
     end
-    clear('params','sim','obj','map')
+    clear('params','sim','obj')
 end
