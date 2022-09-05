@@ -55,9 +55,11 @@ function varargout = main(varargin)
     mex_path = strjoin([folderParts 'compiled_mex'], filesep);
     m_path = strjoin([folderParts(1:end-1) 'Shared Files\m source'], filesep);
     shared_m_path = strjoin([folderParts(1:end-1) 'Shared Files\shared m files'], filesep);
+    victoria_park_path = strjoin([folderParts(1:end-1) 'Victoria Park\compiled_mex'], filesep);
     
     % add / remove paths 
     if ~contains(path,shared_m_path), addpath(shared_m_path); end
+    if contains(path,victoria_park_path), rmpath(victoria_park_path); end
     if params.MEX 
         if ~contains(path,mex_path), addpath(mex_path); end
         if contains(path,m_path), rmpath(m_path); end
@@ -123,5 +125,5 @@ function varargout = main(varargin)
         varargout{4} = sim.cpu_time;
         varargout{5} = sim.Neff;
     end
-    clear('params','sim','obj','map')
+    clear('params','sim','obj')
 end
