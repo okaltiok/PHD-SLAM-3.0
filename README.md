@@ -16,8 +16,8 @@
     b) Set option = 1 and run the code to create the data.\
     c) Set option = 2 and run the code to perform MCSs. This will take some time since it will perform 100 MCS with 1, 10 and 100 particles. You should get the following result:
     
-            J:50, L:5, N:1, pos=4.37 [m], cpu=0.58 [ms]
-            J:50, L:5, N:10, pos=2.84 [m], cpu=4.49 [ms]
+            J:50, L:5, N:1, pos=4.37 [m], cpu=0.48 [ms]
+            J:50, L:5, N:10, pos=2.84 [m], cpu=4.23 [ms]
             J:50, L:5, N:100, pos=2.88 [m], cpu=43.17 [ms]
     
     d) The results are stored in the results-folder, and the performance metrics can be computed by setting option = 3 and running the code. 
