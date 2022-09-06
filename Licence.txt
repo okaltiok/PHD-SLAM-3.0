@@ -1,0 +1,75 @@
+The development of PHD-SLAM 3.0 utilizes code written by others, which are credited in the following.
+
+
+The codes related to the ranked assignment problem [1], including
+
+Matlab m-files: assign2DByCol.m, BinaryHeap.m, kBest2DAssign.m, KeyVal.m, MurtyData.m
+C++ -files: kBest2DAssign.cpp, MexValidation.hpp, ShortestPathCPP.cpp, ShortestPathCPP.hpp
+
+have been originally developed by David Crouse and can be found from:
+
+https://github.com/USNavalResearchLaboratory/TrackerComponentLibrary
+
+To reduce computational complexity, the original code has been modified to terminate hypothesis generation 
+whenever the likelihood of the next hypothesis is below some fixed percentage of the likelihood of the 
+first and most likely hypothesis as described in [2].
+
+
+
+The codes related to the GOSPA metric [3], including auctionAlgorithm.m and GOSPA.m have been 
+written by Abu Sajana Rahmathullah and can be found from: https://github.com/abusajana/GOSPA
+
+
+
+The function resample.m is originally developed by Aki Vehtari and it has been modified for PHD-SLAM 3.0.
+The original code can be found from: https://github.com/EEA-sensors/ekfukf/blob/develop/resampstr.m
+
+
+
+The rest of the algorithms have been developed and tested by:
+
+Author   : Ossi Kaltiokallio
+           Tampere University, Department of Electronics and
+           Communications Engineering
+           Korkeakoulunkatu 1, 33720 Tampere
+           ossi.kaltiokallio@tuni.fi
+Tested   : Matlab version 9.8.0.1359463 (R2020a) Update 1
+
+Copyright (c) 2022, Ossi Kaltiokallio
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in
+      the documentation and/or other materials provided with the distribution
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+
+
+References:
+
+[1] D. F. Crouse, "The Tracker Component Library: Free Routines for Rapid Prototyping," IEEE 
+    Aerospace and Electronic Systems Magazine, vol. 32, no. 5, pp. 18-27, May. 2017.
+    
+[2] I. Cox and M. Miller, “On finding ranked assignments with application to multitarget tracking 
+    and motion correspondence,” IEEE Transactions on Aerospace and Electronic Systems, vol. 31, 
+    no. 1, pp. 486–489, 1995. 
+    
+[3] A. S. Rahmathullah, Á. F. García-Fernández and L. Svensson, "Generalized optimal sub-pattern 
+    assignment metric," 2017 20th International Conference on Information Fusion, 2017, pp. 1-8.
