@@ -5,9 +5,9 @@
     b) Set option = 1 and run the code to create the data.\
     c) Set option = 2 and run the code to perform the Monte Carlo simulations (MCSs). This will take some time since it will perform 100 MCS with 1, 10 and 100 particles. You should get the following result:
     
-            J:50, L:5, N:1, pos=5.58 [m], theta=0.63 [deg], gospa=56.27 [m], cpu=0.35 [ms]
-            J:50, L:5, N:10, pos=2.57 [m], theta=0.32 [deg], gospa=28.59 [m], cpu=2.51 [ms]
-            J:50, L:5, N:100, pos=2.25 [m], theta=0.29 [deg], gospa=25.46 [m], cpu=24.38 [ms]
+            J:50, L:5, N:1, pos=5.58 [m], theta=0.63 [deg], gospa=56.27 [m], cpu=0.27 [ms]
+            J:50, L:5, N:10, pos=2.57 [m], theta=0.32 [deg], gospa=28.59 [m], cpu=2.29 [ms]
+            J:50, L:5, N:100, pos=2.25 [m], theta=0.29 [deg], gospa=25.46 [m], cpu=23.10 [ms]
     
     d) The results are stored in the results-folder, and the performance metrics can be computed by setting option = 3 and running the code. 
     
