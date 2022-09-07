@@ -212,7 +212,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             {
                 if ((int)col4row[i] <= m_k)
                 {    
-                    memcpy(y, Y + (int)((col4row[i]-1)*h_dim), H_DIM2_SOD );
+                    memcpy(y, Y + (int)((col4row[i]-1)*h_dim), H_DIM_SOD );
                     memcpy(Py, R, H_DIM2_SOD );
                     
                     // Compute moments 
@@ -368,6 +368,6 @@ void moments(double *xn, double *Pn, double *xl, double *Pl, double *mu, double 
     
     /* 2nd, compute Py += Hl*Pl*Hl'*/
     matrixMultiply(mm, nl, nl, nl, 0, 0, Hl, Pl, HlPl);
-    matrixMultiply(mm, nl, nl, nl, 1, 1, HlPl, Hl, Py);
+    matrixMultiply(mm, nl, mm, nl, 1, 1, HlPl, Hl, Py);
 }
                     
