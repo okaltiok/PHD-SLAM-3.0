@@ -6,8 +6,8 @@
     c) Set option = 2 and run the code to perform the Monte Carlo simulations (MCSs). This will take some time since it will perform 100 MCS with 1, 10 and 100 particles. You should get the following results:
     
         N:1,   Pos.=11.13 [m], Head.=1.33 [deg], GOSPA=102.42 [m], ESS=100.00 [%]
-        N:10,  Pos.= 2.20 [m], Head.=0.29 [deg], GOSPA= 26.34 [m], ESS= 70.03 [%]
-        N:100, Pos.= 2.26 [m], Head.=0.30 [deg], GOSPA= 25.89 [m], ESS= 66.39 [%]
+        N:10,  Pos.=2.20  [m], Head.=0.29 [deg], GOSPA=26.34  [m], ESS=70.03  [%]
+        N:100, Pos.=2.26  [m], Head.=0.30 [deg], GOSPA=25.89  [m], ESS=66.39  [%]
     
     d) The results are stored in the results-folder, and the performance metrics can be computed by setting option = 3 and running the code. 
     
