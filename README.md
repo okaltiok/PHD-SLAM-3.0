@@ -3,7 +3,7 @@
 2. PHD-SLAM 3.0 with synthetic data.\
     a) Open file ".\PHD-SLAM-3.0\Synthetic Data\MonteCarloSimulations.m"\
     b) Set option = 1 and run the code to create the data.\
-    c) Set option = 2 and run the code to perform the Monte Carlo simulations (MCSs). This will take some time since it will perform 100 MCS with 1, 10 and 100 particles. You should get the following results (the cpu times might differ since it is computer dependent):
+    c) Set option = 2 and run the code to perform the Monte Carlo simulations (MCSs). This will take some time since it will perform 100 MCS with 1, 10 and 100 particles. You should get the following results:
     
         N:1,   Pos.=11.13 [m], Head.=1.33 [deg], GOSPA=102.42 [m], ESS=100.00 [%]
         N:10,  Pos.= 2.20 [m], Head.=0.29 [deg], GOSPA= 26.34 [m], ESS= 70.03 [%]
