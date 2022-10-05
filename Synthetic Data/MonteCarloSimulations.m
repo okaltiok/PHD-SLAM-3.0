@@ -78,47 +78,39 @@ function perform_mcs(MCS)
     end
     
     % define variables
-    N = 10;              % Particle number
-    L = 5;              % Maximum number of IPL iterations
-    J = 50;             % Maximum number of GM-OID components
-    resample = true;    % resample flag
+    N = logspace(0,2,3);    % Particle number
+    L = 5;                  % Maximum number of IPL iterations
+    J = 50;                 % Maximum number of GM-OID components
+    resample = true;        % resample flag
     
-    POS_E = cell(MCS,1);
-    THETA_E = cell(MCS,1);
-    GOSPA_D = cell(MCS,1);
-    CPU = cell(MCS,1);
-    N_EFF = cell(MCS,1);
-    
-    % If Parallel Computing Toolbox isn't installed, replace
-    % parfor-loop with a regular for-loop.
-    pw = PoolWaitbar(MCS, 'Simulation in progress, please wait ...');
-    parfor i = 1:MCS
-        [POS_E{i,1},THETA_E{i,1},GOSPA_D{i,1},CPU{i,1},N_EFF{i,1}] = ...
-            main(i,false,L,J,N,resample);
-        increment(pw)
+    for n = N
+        POS_E = cell(MCS,1);
+        THETA_E = cell(MCS,1);
+        GOSPA_D = cell(MCS,1);
+        CPU = cell(MCS,1);
+        N_EFF = cell(MCS,1);
+        
+        % If Parallel Computing Toolbox isn't installed, replace
+        % parfor-loop with a regular for-loop.
+        pw = PoolWaitbar(MCS, 'Simulation in progress, please wait ...');
+        parfor i = 1:MCS
+            [POS_E{i,1},THETA_E{i,1},GOSPA_D{i,1},CPU{i,1},N_EFF{i,1}] = ...
+                main(i,false,L,J,n,resample);
+            increment(pw)
+        end
+        delete(pw)
+        
+        gospa_d = cell2mat(GOSPA_D);
+        fprintf('N:%d, Pos.=%.2f [m], Head.=%.2f [deg], GOSPA=%.2f [m], ESS=%.2f [%%]\n', ...
+            n, ...
+            sqrt(mean(cell2mat(POS_E).^2,'all','omitnan')), ...
+            sqrt(mean(cell2mat(THETA_E).^2,'all','omitnan'))*180/pi, ...
+            mean(gospa_d(:,end),'all'), ...
+            mean(cell2mat(N_EFF),'all')*100);
+        
+        % save MCS results
+        save(sprintf(filename,J,L,n),'POS_E','THETA_E','GOSPA_D','CPU','N_EFF')
     end
-    
-    delete(pw)
-    
-    pos_e = cell2mat(POS_E);
-    theta_e = cell2mat(THETA_E);
-    gospa_d = cell2mat(GOSPA_D);
-    cpu = cell2mat(CPU);
-    neff = cell2mat(N_EFF);
-    
-    fprintf('J:%d, L:%d, N:%d, pos=%.2f [m], theta=%.2f [deg], gospa=%.2f [m], cpu=%.2f [ms], Time=%.2f [s], Neff=%.2f [%%]\n', ...
-        J, ...
-        L, ...
-        N, ...
-        sqrt(mean(pos_e.^2,'all','omitnan')), ...
-        sqrt(mean(theta_e.^2,'all','omitnan'))*180/pi, ...
-        mean(gospa_d(:,end),'all'), ...
-        mean(cpu,'all')*1000, ...
-        mean(sum(cpu,2)), ...
-        mean(neff,'all')*100);
-    
-    % save MCS results
-    save(sprintf(filename,J,L,N),'POS_E','THETA_E','GOSPA_D','CPU','N_EFF')
 end
 
 function compute_performance_metrics
@@ -130,30 +122,23 @@ function compute_performance_metrics
     end
     
     % define variables
-    N = 1;
+    N = logspace(0,2,3);    % Particle number
     L = 5;
     J = 50;
     
-    try
-        load(sprintf(filename,J,L,N),'POS_E','THETA_E','GOSPA_D','CPU','N_EFF');
-        
-        pos_e = cell2mat(POS_E);
-        theta_e = cell2mat(THETA_E);
-        gospa_d = cell2mat(GOSPA_D);
-        cpu = cell2mat(CPU);
-        neff = cell2mat(N_EFF);
-        
-        fprintf('J:%d, L:%d, N:%d, pos=%.2f [m], theta=%.2f [deg], gospa=%.2f [m], cpu=%.2f [ms], Time=%.2f [s], Neff=%.2f [%%]\n', ...
-            J, ...
-            L, ...
-            N, ...
-            sqrt(mean(pos_e.^2,'all','omitnan')), ...
-            sqrt(mean(theta_e.^2,'all','omitnan'))*180/pi, ...
-            mean(gospa_d(:,end),'all'), ...
-            mean(cpu,'all')*1000, ...
-            mean(sum(cpu,2)), ...
-            mean(neff,'all')*100);
-    catch
-        fprintf('Can''t load file, incorrect filename!\n')
+    for n = N
+        try
+            load(sprintf(filename,J,L,n),'POS_E','THETA_E','GOSPA_D','N_EFF');
+            
+            gospa_d = cell2mat(GOSPA_D);
+            fprintf('N:%d, Pos.=%.2f [m], Head.=%.2f [deg], GOSPA=%.2f [m], ESS=%.2f [%%]\n', ...
+                n, ...
+                sqrt(mean(cell2mat(POS_E).^2,'all','omitnan')), ...
+                sqrt(mean(cell2mat(THETA_E).^2,'all','omitnan'))*180/pi, ...
+                mean(gospa_d(:,end),'all'), ...
+                mean(cell2mat(N_EFF),'all')*100);
+        catch
+            fprintf('Can''t load file, incorrect filename!\n')
+        end
     end
 end
