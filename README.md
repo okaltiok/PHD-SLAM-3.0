@@ -16,7 +16,7 @@
     b) Set option = 1 and run the code to create the data.\
     c) Set option = 2 and run the code to perform MCSs. You should get the following result:
     
-            J:50, L:5, N:1, pos=4.37 [m], cpu=0.48 [ms]
+        N:1, pos=3.91 [m], Neff=100.00 [%]
     
     d) The results are stored in the results-folder, and the performance metrics can be computed by setting option = 3 and running the code. 
     
