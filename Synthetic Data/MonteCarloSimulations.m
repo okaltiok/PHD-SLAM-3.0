@@ -18,7 +18,7 @@ function MonteCarloSimulations
     % set option = 2 to run MCS
     % set option = 3 to compute performance metrics
     
-    option = 2;
+    option = 1;
     
     % number of simulations
     MCS = 100;
@@ -38,9 +38,9 @@ end
 function generate_data(MCS)
     reply = input('Are you certain, you want to generate new measurements? (y/n): ','s');
     if strcmpi(reply,'y')
-        fprintf('generating new measurements\n')
+        fprintf('Generating data for Monte Carlo simulations.\n')
     else
-        fprintf('No action taken\n')
+        fprintf('No action taken.\n')
         return
     end
 
@@ -53,12 +53,14 @@ function generate_data(MCS)
     if ~contains(path,m_path), addpath(m_path); end
     
     % create data and save
+    pw = PoolWaitbar(MCS, 'Creating data, please wait ...');
     for ii = 1:MCS
         clear('params','model','sim','obj')
         [params,sim,filename]  = simulation_setup(ii,'create');
         save(filename, 'params', 'sim')
-        fprintf('round %d\n',ii)
+        increment(pw)
     end
+    delete(pw)
 
     % remove created paths
     rmpath(meas_path);
