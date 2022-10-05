@@ -50,7 +50,7 @@ function varargout = main(varargin)
     u_prev = [];
      
     % for each time instants, do
-    for k = 1:params.T   
+    for k = 1:params.K   
         if sim.o_time{j} < sim.u_time{k}
             % get current measurement
             y = sim.y{j};
@@ -83,7 +83,7 @@ function varargout = main(varargin)
             j = j + 1;
         end
 
-        if j > params.K 
+        if j > params.T
             break
         end
     end

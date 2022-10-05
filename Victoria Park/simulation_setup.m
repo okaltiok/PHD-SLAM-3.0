@@ -77,8 +77,8 @@ function [params, sim] = load_data(filename)
     % initialize the random number generator
     rng(params.seed)
 
-    params.T = size(sim.u_time,2);
-    params.K = size(sim.o_time,2);
+    params.T = size(sim.o_time,2);
+    params.K = size(sim.u_time,2);
 end
 
 function [params, sim] = create_data(file_idx)

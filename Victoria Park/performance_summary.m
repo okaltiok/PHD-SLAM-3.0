@@ -29,10 +29,10 @@ function [sim,position] = performance_summary(params,sim)
     end
 
     % initialize (1 x K) RMS position error vector
-    position = nan(1,params.K);
+    position = nan(1,params.T);
 
     % for each time instant compute the RMSE
-    for j = 1:params.K
+    for j = 1:params.T
         if ~isempty(sim.o_time{j})
             [val,l] = min(abs(sim.gps_time-sim.o_time{j}));
             
