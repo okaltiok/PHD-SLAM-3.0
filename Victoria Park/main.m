@@ -26,20 +26,26 @@ function varargout = main(varargin)
     %    this code granted that the author of the original code is 
     %    mentioned as the original author of the code.
 
+    MEX = true;
+     
     % load simulation parameters
     if nargin == 0
-        file_idx = 1;
-        [params,sim,~] = simulation_setup(file_idx,'load');
+        file_idx = 2;
+        [params,sim,~] = simulation_setup(file_idx,'load',MEX);
         maxNumCompThreads(1); % force maximum number of computation threads to one
         clear plot_estimate
     else
-        [params,sim,~] = simulation_setup(varargin{1},'load');
+        [params,sim,~] = simulation_setup(varargin{1},'load',MEX);
         params.f_mode = varargin{2}; 
-        params.L = varargin{3};
-        params.J = varargin{4};
-        params.N_particle = varargin{5};
+        params.N_particle = varargin{3};
+        params.resample = varargin{4};
+        if params.resample
+            params.N_eff = params.T_eff*params.N_particle;
+        else
+            params.N_eff = 0;
+        end
     end 
-
+    
     % initialize PHD-SLAM density and arrays to store data
     [obj,sim] = initialize(sim,params);
 
@@ -92,7 +98,7 @@ function varargout = main(varargin)
         params.f_mode = true;
     end
     % compute performance metrics
-    [sim,pos_e] = performance_summary(params,sim);
+    pos_e = performance_summary(params,sim);
 
     if nargin > 0 
         varargout{1} = pos_e;

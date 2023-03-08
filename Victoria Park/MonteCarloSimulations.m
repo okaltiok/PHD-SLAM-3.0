@@ -18,7 +18,7 @@ function MonteCarloSimulations
     % set option = 2 to run MCS
     % set option = 3 to compute performance metrics
     
-    option = 2;
+    option = 3;
     
     % number of simulations
     MCS = 100;
@@ -49,7 +49,13 @@ function generate_data(MCS)
     % get current folder, define path name and add it to the path
     folderParts = strsplit(pwd, filesep);
     meas_path = strjoin([folderParts 'measurements' 'VP data set'], filesep);
+    m_path = strjoin([folderParts(1:end-1) 'Shared Files' 'm source'], filesep);
+    shared_path = strjoin([folderParts(1:end-1) 'Shared Files' 'shared m files'], filesep);
+    
+    % add measurement path to measurements and m files
     if ~contains(path,meas_path), addpath(meas_path); end
+    if ~contains(path,m_path), addpath(m_path); end
+    if ~contains(path,shared_path), addpath(shared_path); end
 
     % create data and save
     pw = PoolWaitbar(MCS, 'Creating data, please wait ...');
@@ -63,65 +69,64 @@ function generate_data(MCS)
     
     % remove created paths
     rmpath(meas_path);
+    rmpath(m_path);
+    rmpath(shared_path);
 end
 
 function perform_mcs(MCS)
-    % get current folder, define path name and add it to the path
     folderParts = strsplit(pwd, filesep);
     shared_m_path = strjoin([folderParts(1:end-1) 'Shared Files' 'shared m files'], filesep);
     if ~contains(path,shared_m_path), addpath(shared_m_path); end
 
     % create filename
     if strcmp(filesep,'\')
-         filename = strjoin([{'results\'} 'PHD_J%dL%dN%d.mat'], filesep);
+         filename = strjoin([{'results\'} 'PHD_N%d.mat'], filesep);
     else
-         filename = strjoin([{'results'} 'PHD_J%dL%dN%d.mat'], filesep);
+         filename = strjoin([{'results'} 'PHD_N%d.mat'], filesep);
     end
     
-    % define variables
-    N = 1;  % Particle number
-    L = 5;  % Maximum number of IPL iterations
-    J = 50; % Maximum number of GM-OID components
-
-    POS_E = cell(MCS,1);
-    CPU = cell(MCS,1);
-    N_EFF = cell(MCS,1);
-    
-    % If Parallel Computing Toolbox isn't installed, replace
-    % parfor-loop with a regular for-loop.
-    pw = PoolWaitbar(MCS, 'Simulation in progress, please wait ...');
-    parfor ii = 1:MCS
-        [POS_E{ii,1},CPU{ii,1},N_EFF{ii,1}] = main(ii,false,L,J,N);
-        increment(pw)
+    N = 1;    % Particle number
+    resample = false;        % resample flag
+    for j = 1:size(N,1)
+        POS_E = cell(MCS,1);
+        CPU = cell(MCS,1);
+        N_EFF = cell(MCS,1);
+        
+        % If Parallel Computing Toolbox isn't installed, replace
+        % parfor-loop with a regular for-loop.
+        pw = PoolWaitbar(MCS, 'Simulation in progress, please wait ...');
+        parfor ii = 1:MCS
+            [POS_E{ii,1},CPU{ii,1},N_EFF{ii,1}] = main(ii,false,N(j),resample);
+            increment(pw)
+        end
+        delete(pw)
+        
+        % compute performance metrics
+        fprintf('N:%d, pos=%.2f [m], Neff=%.2f [%%]\n', ...
+            N(j), ...
+            sqrt(mean(cell2mat(POS_E).^2,'all','omitnan')), ...
+            mean(cell2mat(N_EFF),'all','omitnan')*100);
+        
+        % save MCS results
+        save(sprintf(filename,N(j)),'POS_E','CPU','N_EFF')
     end
-    delete(pw)
     
-    % compute performance metrics
-    fprintf('N:%d, pos=%.2f [m], Neff=%.2f [%%]\n', ...
-        N, ...
-        sqrt(mean(cell2mat(POS_E).^2,'all','omitnan')), ...
-        mean(cell2mat(N_EFF),'all','omitnan')*100);
-    
-    % save MCS results
-    save(sprintf(filename,J,L,N),'POS_E','CPU','N_EFF')
 end
 
 function compute_performance_metrics   
     % create filename
     if strcmp(filesep,'\')
-        filename = strjoin([{'results\'} 'PHD_J%dL%dN%d.mat'], filesep);
+        filename = strjoin([{'results\'} 'PHD_N%d.mat'], filesep);
     else
-        filename = strjoin([{'results'} 'PHD_J%dL%dN%d.mat'], filesep);
+        filename = strjoin([{'results'} 'PHD_N%d.mat'], filesep);
     end
     
     % define variables
     N = 1;
-    L = 5;
-    J = 50;
     
     try
         % load data
-        load(sprintf(filename,J,L,N),'POS_E','N_EFF');
+        load(sprintf(filename,N),'POS_E','N_EFF');
         
         % compute performance metrics
         fprintf('N:%d, pos=%.2f [m], Neff=%.2f [%%]\n', ...

@@ -23,7 +23,6 @@ function plot_estimate(obj,est,y,k,sim,params)
     
     % illustrates the scenario and estimate only if f_mode flag is true
     if params.f_mode
-        
         persistent FoV;
         persistent h;
         persistent ax;
@@ -41,6 +40,7 @@ function plot_estimate(obj,est,y,k,sim,params)
 
         % illustrate every 10th time instant to speed up visualization 
         if k == 1 || mod(k,10) == 0
+            
             % project measurements to 2D Euclidean space
             if ~isempty(y)
                 range = y(1,:);

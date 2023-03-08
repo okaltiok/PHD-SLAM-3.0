@@ -1,4 +1,4 @@
-function [sim,position] = performance_summary(params,sim)
+function position = performance_summary(params,sim)
     % This function calculates the performance metrics
 
     % Input:
@@ -21,13 +21,6 @@ function [sim,position] = performance_summary(params,sim)
     %    this code granted that the author of the original code is 
     %    mentioned as the original author of the code.
     
-    % if resample flag is false, get trajectory with maximum weight and use
-    % that as the estimate
-    if ~params.resample
-        [~,j] = max(sim.WW(:,end));
-        sim.MM = squeeze(sim.XX(:,j,:));
-    end
-
     % initialize (1 x K) RMS position error vector
     position = nan(1,params.T);
 

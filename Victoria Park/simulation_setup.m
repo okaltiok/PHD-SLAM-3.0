@@ -1,4 +1,4 @@
-function [params,sim,filename] = simulation_setup(file_idx,mode)
+function [params,sim,filename] = simulation_setup(file_idx,mode,MEX)
     % This function is used to generate the data and configures the 
     % parameters or load the data from a file
     %
@@ -29,7 +29,7 @@ function [params,sim,filename] = simulation_setup(file_idx,mode)
     
     switch mode
         case 'load'
-            [params, sim] = load_data(filename);
+            [params, sim] = load_data(filename,MEX);
         case 'create'
             [params, sim] = create_data(file_idx);
         otherwise
@@ -37,7 +37,7 @@ function [params,sim,filename] = simulation_setup(file_idx,mode)
     end
 end
 
-function [params, sim] = load_data(filename)
+function [params, sim] = load_data(filename,MEX)
     % load data
     j = 0;
     while 1
@@ -55,17 +55,18 @@ function [params, sim] = load_data(filename)
             end
         end
     end
-
-    % get current folder and define path names
+       
+    % store MEX flag
+    params.MEX = MEX;
+    
+    % define Matlab-paths, get current folder and define path names
     folderParts = strsplit(pwd, filesep);
+    shared_m_path = strjoin([folderParts(1:end-1) ['Shared Files',filesep,'shared m files']], filesep);
     mex_path = strjoin([folderParts 'compiled_mex'], filesep);
     m_path = strjoin([folderParts(1:end-1) ['Shared Files',filesep,'m source']], filesep);
-    shared_m_path = strjoin([folderParts(1:end-1) ['Shared Files',filesep,'shared m files']], filesep);
-    synthetic_data_path = strjoin([folderParts(1:end-1) ['Synthetic Data',filesep,'compiled_mex']], filesep);
-
+    
     % add / remove paths
     if ~contains(path,shared_m_path), addpath(shared_m_path); end
-    if contains(path,synthetic_data_path), rmpath(synthetic_data_path); end
     if params.MEX
         if ~contains(path,mex_path), addpath(mex_path); end
         if contains(path,m_path), rmpath(m_path); end
@@ -73,12 +74,13 @@ function [params, sim] = load_data(filename)
         if ~contains(path,m_path), addpath(m_path); end
         if contains(path,mex_path), rmpath(mex_path); end
     end
+    
+    % remove path to other data set
+    synthetic_data_path = strjoin([folderParts(1:end-1) ['Synthetic Data',filesep,'compiled_mex']], filesep);
+    if contains(path,synthetic_data_path), rmpath(synthetic_data_path); end
 
     % initialize the random number generator
-    rng(params.seed)
-
-    params.T = size(sim.o_time,2);
-    params.K = size(sim.u_time,2);
+    rng(params.seed)    
 end
 
 function [params, sim] = create_data(file_idx)
@@ -157,6 +159,9 @@ function [params, sim] = create_data(file_idx)
     end
     sim.o_time(j:end) = [];
     sim.y(j:end) = [];
+    
+    params.T = size(sim.o_time,2);
+    params.K = size(sim.u_time,2);
 end
 function params = initialize_parameters
     % This method initializes the parameters
@@ -183,19 +188,18 @@ function params = initialize_parameters
     params.gating_size = chi2inv(1 - params.P_G,2);                % gating threshold value
     params.w_min =  log(1e-6);                                     % pruning threshold
     params.merging_threshold = 10;                                 % merging threshold
-    params.eta_threshold = 0.7;                                    % threshold of landmark estimate
+    params.etaT = log((1-params.P_D)^2);                           % threshold of landmark estimate
 
     % PF and OID parameters
     params.resample = false;                                       % resample flag
     params.N_particle = 1;                                         % number of particles
+    params.T_eff = 0.2;                                            % resampling threshold
     params.N_eff = 0;                                              % effective sample size
     params.J = 50;                                                % max number of assignments computed using Murty's algorithm
     params.DA_threshold = log(10^(-3));                            % threshold to stop Murty's algorithm at n-th iteration, if gain[1] - gain[n] < params.DA_threshold 
     params.L = 5;                                                  % max number of OID iterations
     params.epsilon = 1e-3;                                         % threshold value used to evaluate convergence of the iterative OID approximation
-    params.kappa = 1e-6;                                           % test statistic tail probability  
-    params.gamma = chi2inv(1 - params.kappa , (0:100)*2);          % test statistic value used to evaluate goodness of the linearization
-    
+
     % model parameters
     params.xn_dim = 3;                                             % vehicle dimension
     params.xl_dim = 2;                                             % landmark dimension                 
