@@ -25,7 +25,6 @@ function obj =  hypothesisReductionAlgorithm(obj,params)
 
     % get parameters of the Gaussian mixture
     eta = obj.eta;
-    eta_threshold = obj.eta_threshold;
     xl = obj.xl;
     Pl = obj.Pl;
     xl_dim = size(xl,1);
@@ -48,10 +47,6 @@ function obj =  hypothesisReductionAlgorithm(obj,params)
                 temp = eta(j);
                 eta(j) = eta(j+1);
                 eta(j+1) = temp;
-                
-                temp = eta_threshold(j);
-                eta_threshold(j) = eta_threshold(j+1);
-                eta_threshold(j+1) = temp;
                 
                 temp = sorted_idx(j);
                 sorted_idx(j) = sorted_idx(j+1);
@@ -101,7 +96,6 @@ function obj =  hypothesisReductionAlgorithm(obj,params)
         log_w = zeros(1,n);
         idx = zeros(1,n);
         log_sum_w = 0;
-        max_eta_threshold = 0;
         l = 1;
         for j = i:endofarray
             if cluster_idx(j)
@@ -110,9 +104,6 @@ function obj =  hypothesisReductionAlgorithm(obj,params)
                 log_sum_w = log_sum_w + exp(log_w(l)-log_w(1));
                 l = l + 1;
                 cluster_idx(j) = 0;
-                if eta_threshold(j) > max_eta_threshold
-                    max_eta_threshold = eta_threshold(j);
-                end
             end
         end
         log_sum_w = log_w(1) + log(log_sum_w);
@@ -148,7 +139,6 @@ function obj =  hypothesisReductionAlgorithm(obj,params)
         
         % append the merged components to the parameters
         eta(el) = log_sum_w;
-        eta_threshold(el) = max_eta_threshold;
         xl(:,el) = m;
         Pl(:,:,el) = P;
         
@@ -176,7 +166,7 @@ function obj =  hypothesisReductionAlgorithm(obj,params)
             xl_fov(i,1) = 0;
         end
         
-        if xl_fov(i,1) == 0 && eta(i) < log(eta_threshold(i))
+        if xl_fov(i,1) == 0 && eta(i) < params.etaT
             xl_fov(i,1) = -1;
         end
     end
@@ -202,12 +192,10 @@ function obj =  hypothesisReductionAlgorithm(obj,params)
         obj.xl = xl(:,xl_fov==1);
         obj.Pl = Pl(:,:,xl_fov==1);
         obj.eta = eta(:,xl_fov==1);
-        obj.eta_threshold = eta_threshold(:,xl_fov==1);
     else
         obj.xl = cat(2,xl(:,xl_fov==1),xlp(:,xlp_fov==1));
         obj.Pl = cat(3,Pl(:,:,xl_fov==1),obj.Pl_p(:,:,xlp_fov==1));
         obj.eta = cat(2,eta(:,xl_fov==1),obj.eta_p(:,xlp_fov==1));
-        obj.eta_threshold = cat(2,eta_threshold(:,xl_fov==1),obj.eta_threshold_p(:,xlp_fov==1));
     end
     
     % store passive components
@@ -215,18 +203,15 @@ function obj =  hypothesisReductionAlgorithm(obj,params)
         obj.xl_p = xlp(:,xlp_fov==0);
         obj.Pl_p = obj.Pl_p(:,:,xlp_fov==0);
         obj.eta_p = obj.eta_p(:,xlp_fov==0);
-        obj.eta_threshold_p = obj.eta_threshold_p(:,xlp_fov==0);
     else
         obj.xl_p = cat(2,xlp(:,xlp_fov==0),xl(:,xl_fov==0));
         obj.Pl_p = cat(3,obj.Pl_p(:,:,xlp_fov==0),Pl(:,:,xl_fov==0));
         obj.eta_p = cat(2,obj.eta_p(:,xlp_fov==0),eta(:,xl_fov==0));
-        obj.eta_threshold_p = cat(2,obj.eta_threshold_p(:,xlp_fov==0),eta_threshold(:,xl_fov==0));
     end
     
     if size(obj.xl_p,2) == 0
         obj.xl_p = zeros(2,0);
         obj.Pl_p = zeros(2,2,0);
         obj.eta_p = zeros(1,0);
-        obj.eta_threshold_p = zeros(1,0);
     end
 end

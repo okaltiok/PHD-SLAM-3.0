@@ -29,8 +29,8 @@ function est = posterior_est(obj,params)
     est.P_hat = obj(j).Pn;
 
     % get index of landmarks with weight above a threshold
-    idx = obj(j).eta > log(obj(j).eta_threshold);
-    idx_p = obj(j).eta_p > log(obj(j).eta_threshold_p);
+    idx = obj(j).eta > params.etaT;
+    idx_p = obj(j).eta_p > params.etaT;
     nk = sum(idx);
     nk_p = sum(idx_p);
     

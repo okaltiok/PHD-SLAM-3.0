@@ -38,8 +38,8 @@ function [P_D, L] = cost_matrix(obj, Y, params)
     P_D = adaptiveDetectionProbability(xl, xn, params.fov_range, params.fov_angle, params.P_D);
     
     % loop through landmarks
-    for i = 1:n_k
-        L(i,m_k+i) = log(1 - P_D(i));
+    for i = 1:n_k       
+        L(i,m_k+i) = log(1 - P_D(i)) + eta(i);
         
         % compute predicted measurement and Jacobian 
         if P_D(i) > 0

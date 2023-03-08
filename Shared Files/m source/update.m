@@ -31,7 +31,6 @@ function obj = update(obj,y,params)
     % obtain input variables
     xn = obj.xn;
     eta = obj.eta;
-    eta_threshold = obj.eta_threshold;
     xl = obj.xl;
     Pl = obj.Pl;
 
@@ -90,14 +89,12 @@ function obj = update(obj,y,params)
 
     % reallocate size of output variables
     eta = cat(2,eta,zeros(1,NDA));
-    eta_threshold = cat(2,eta_threshold,zeros(1,NDA));
     xl = cat(2,xl,zeros(2,NDA));
     Pl = cat(3,Pl,zeros(2,2,NDA));
 
-    % update weight of misdetection
+    % update weights of misdetection
     for j = 1:n_k
         eta(j) = log(1-P_D(j)) + eta(j);
-        eta_threshold(j) = (1-P_D(j)) * eta_threshold(j);
     end
 
     % compute sum of log weights for each landmark
@@ -118,7 +115,6 @@ function obj = update(obj,y,params)
 
                 % update weight of landmark
                 eta(k) = L(j,i) - log(params.lambda_c + eta_tilde_sum(i));
-                eta_threshold(k) = params.eta_threshold;
 
                 k = k + 1;
             end
@@ -133,7 +129,6 @@ function obj = update(obj,y,params)
     obj.birth_y = y(:,DA == 0);
 
     obj.eta = eta;
-    obj.eta_threshold = eta_threshold;
     obj.xl = xl;
     obj.Pl = Pl;
 end

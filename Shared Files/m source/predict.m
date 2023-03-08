@@ -1,7 +1,6 @@
 function obj = predict(obj,u,t,params)
-    % This function implements the PHD prediction step including the birth 
-    % process that creates new landmarks the propagation of the vehicle
-    % according to the kinematic model and control inputs
+    % This function implements the PHD prediction step and propagation of 
+    % the vehicle according to the kinematic model and control inputs
 
     % Input:
     %    obj        - struct that represent particle n of the PHD-SLAM density at time k-1
@@ -30,7 +29,6 @@ function obj = predict(obj,u,t,params)
     xl = obj.xl;
     Pl = obj.Pl;
     eta = obj.eta;
-    eta_threshold = obj.eta_threshold;
 
 
     % create new landmarks
@@ -65,7 +63,6 @@ function obj = predict(obj,u,t,params)
         xl = cat(2,xl,xb);
         Pl = cat(3,Pl,Pb);
         eta = cat(2,eta,log(params.P_B)*ones(1,m_k));
-        eta_threshold = cat(2,eta_threshold,params.eta_threshold*ones(1,m_k));
     end
 
     %  propagate vehicle
@@ -85,6 +82,5 @@ function obj = predict(obj,u,t,params)
     obj.xl = xl;
     obj.Pl = Pl;
     obj.eta = eta;
-    obj.eta_threshold = eta_threshold;
     obj.birth_y = [];
 end

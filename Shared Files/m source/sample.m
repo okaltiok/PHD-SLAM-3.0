@@ -1,5 +1,6 @@
 function obj = sample(obj,wp,mp,Pp,r_uniform,r_gaussian)
-    % This function samples from the Gaussian mixture sampling distribution
+    % This function samples from the Gaussian mixture importance density
+    % and updates the particle weight
 
     % Input:
     %    obj        - struct that represent particle n of the PHD-SLAM density
@@ -62,7 +63,7 @@ function obj = sample(obj,wp,mp,Pp,r_uniform,r_gaussian)
         return;
     end
     
-    % sample from the OID
+    % sample from the j-th component of the GM-ID
     xj = mp(:,j_idx) + sqrtP*r_gaussian;
 
     % compute log-likelihood of sample w.r.t. to prior 
@@ -77,7 +78,7 @@ function obj = sample(obj,wp,mp,Pp,r_uniform,r_gaussian)
         log_likelihood(j) = wp(j) -0.5*(nu_prop'/Pp(:,:,j)*nu_prop + d + log(det((Pp(:,:,j)))));
     end
     prop = log(sum(exp(log_likelihood)));
-    
+
     % update particle weight
     obj.w = obj.w + prior - prop;
 
