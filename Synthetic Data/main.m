@@ -28,11 +28,11 @@ function varargout = main(varargin)
     %    mentioned as the original author of the code.
 
     % set to true to use MEX implementation
-    MEX = false;
+    MEX = true;
           
     % load simulation parameters
     if nargin == 0
-        file_idx = 3;
+        file_idx = 1;
         [params,sim,~] = simulation_setup(file_idx,'load',MEX);
         maxNumCompThreads(1); % force maximum number of computation threads to one
         clear plot_estimate
