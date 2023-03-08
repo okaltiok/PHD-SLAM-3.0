@@ -28,9 +28,9 @@
 #include "math.h"
 
 
-void bubblesort(double *eta, double *eta_threshold, double *xl, double *Pl, int size);
+void bubblesort(double *eta, double *xl, double *Pl, int size);
 
-void fov_bubblesort(int *fov, double *eta, double *eta_threshold, double *xl, double *Pl, int size);
+void fov_bubblesort(int *fov, double *eta, double *xl, double *Pl, int size);
 
 /* The gateway function */
 void mexFunction(int nlhs, mxArray *plhs[],
@@ -43,20 +43,18 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     /* variable declarations of input variables  */
     mxArray *xlPtr, *PlPtr, *etaPtr, *etaThresholdPtr;    /* field pointer */
-    double *xn, *eta, *eta_threshold, *xl, *Pl;             /* input vectors and matrices */
+    double *xn, *eta, *xl, *Pl;             /* input vectors and matrices */
     
     plhs[0] = mxDuplicateArray(prhs[0]);     // P_D, SP r, gating_size, lambda_c
     
     xlPtr = mxGetField(plhs[0], 0, "xl");
     PlPtr = mxGetField(plhs[0], 0, "Pl");
     etaPtr = mxGetField(plhs[0], 0, "eta");
-    etaThresholdPtr = mxGetField(plhs[0], 0, "eta_threshold");
     
     xn = mxGetPr(mxGetField(plhs[0], 0, "xn"));
     xl = mxGetPr(xlPtr);
     Pl = mxGetPr(PlPtr);
     eta = mxGetPr(etaPtr);
-    eta_threshold = mxGetPr(etaThresholdPtr);
     
     double w_min = *mxGetPr(mxGetField(prhs[1], 0, "w_min"));
     double merging_threshold = *mxGetPr(mxGetField(prhs[1], 0, "merging_threshold"));
@@ -65,13 +63,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
             *mxGetPr(mxGetField(prhs[1], 0, "range_buffer")),2);
     double FOV_ANGLE = *mxGetPr(mxGetField(prhs[1], 0, "fov_angle")) +
             *mxGetPr(mxGetField(prhs[1], 0, "angle_buffer"));
+    double etaT = log(mxGetScalar(mxGetField(prhs[1], 0, "P_B")));
     
     int xl_dim = (int)mxGetM(xlPtr);
     int n_k = (int)mxGetN(xlPtr);
     int xl_dim2 = xl_dim*xl_dim;
     
     // sort arrays based on the weight
-    bubblesort(eta, eta_threshold, xl, Pl, n_k);
+    bubblesort(eta, xl, Pl, n_k);
     
     /* 
      *
@@ -88,7 +87,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     }
     
     double Sigma[4], detP[1], nu[2], x[2], P[4], Snu[2];
-    double log_sum_w, max_eta_threshold, d;
+    double log_sum_w, d;
 
     char *merged_idx = mxCalloc(endofarray*sizeof(char),sizeof(char));
     char *cluster_idx = mxCalloc(endofarray*sizeof(char),sizeof(char));
@@ -129,7 +128,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
         }
         
         // normalize log-weights
-        log_sum_w = 0.0, max_eta_threshold = 0.0, l = 0;
+        log_sum_w = 0.0, l = 0;
 
         for(int j = i; j < endofarray; j++)
         {
@@ -140,9 +139,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
                 log_sum_w += exp(log_w[l]-log_w[0]);
                 l++;
                 cluster_idx[j] = 0;
-                
-                if (eta_threshold[j] > max_eta_threshold)
-                    max_eta_threshold = eta_threshold[j];
             }
         }
         log_sum_w = log_w[0] + log(log_sum_w);
@@ -181,7 +177,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
         // store variables
         eta[el] = log_sum_w;
-        eta_threshold[el] = max_eta_threshold;
         memcpy(xl+xl_dim*el, x,xl_dim*sizeof(double));
         memcpy(Pl+xl_dim2*el,P,xl_dim2*sizeof(double));
         el++;
@@ -207,12 +202,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
     xlpPtr = mxGetField(plhs[0], 0, "xl_p");
     PlpPtr = mxGetField(plhs[0], 0, "Pl_p");
     etapPtr = mxGetField(plhs[0], 0, "eta_p");
-    etaTpPtr = mxGetField(plhs[0], 0, "eta_threshold_p");
     
     xlp = mxGetPr(xlpPtr);
     Plp = mxGetPr(PlpPtr);
     etap = mxGetPr(etapPtr);
-    etaTp = mxGetPr(etaTpPtr);
     
     int np_k = (int)mxGetN(xlpPtr);
     
@@ -233,8 +226,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
         else
             in_fov[i] = 1;
         
-        if (in_fov[i] == 0 && eta[i] < log(eta_threshold[i]))
+        if (in_fov[i] == 0 && eta[i] <= etaT)
             in_fov[i] = -1;
+
         if (in_fov[i] == 0)
             move_outside_fov++;
     }
@@ -255,7 +249,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     }
     
     
-    fov_bubblesort(in_fov, eta, eta_threshold, xl, Pl, el);
+    fov_bubblesort(in_fov, eta, xl, Pl, el);
     int xl_allocated = 0;
     for (int i = 0; i < el; i++)
     {
@@ -263,7 +257,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
             xl_allocated++;
     }
     
-    fov_bubblesort(out_fov, etap, etaTp, xlp, Plp, np_k);
+    fov_bubblesort(out_fov, etap, xlp, Plp, np_k);
     int xlp_allocated = 0;
     for (int i = 0; i < np_k; i++)
     {
@@ -279,13 +273,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
         mxSetData(xlPtr, (mxArray **)mxRealloc(mxGetData(xlPtr), xl_dim * xl_new_size * sizeof(mxArray *)));
         mxSetData(PlPtr, (mxArray **)mxRealloc(mxGetData(PlPtr), xl_dim2 * xl_new_size * sizeof(mxArray *)));
         mxSetData(etaPtr, (mxArray **)mxRealloc(mxGetData(etaPtr), xl_new_size * sizeof(mxArray *)));
-        mxSetData(etaThresholdPtr, (mxArray **)mxRealloc(mxGetData(etaThresholdPtr), xl_new_size * sizeof(mxArray *)));
         
         // get pointer to reallocated arrays
         xl = mxGetPr(xlPtr);
         Pl = mxGetPr(PlPtr);
         eta = mxGetPr(etaPtr);
-        eta_threshold = mxGetPr(etaThresholdPtr);
     }
     
     if(np_k-xlp_allocated < move_outside_fov)
@@ -300,12 +292,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
             xlpPtr = mxCreateDoubleMatrix(xl_dim, xlp_new_size, mxREAL);
             PlpPtr = mxCreateNumericArray(ndim_init, dims_init, mxDOUBLE_CLASS, mxREAL);
             etapPtr = mxCreateDoubleMatrix(1, xlp_new_size, mxREAL);
-            etaTpPtr = mxCreateDoubleMatrix(1, xlp_new_size, mxREAL);
             
             mxSetField(plhs[0], 0, "xl_p", xlpPtr);
             mxSetField(plhs[0], 0, "Pl_p", PlpPtr);
             mxSetField(plhs[0], 0, "eta_p", etapPtr);
-            mxSetField(plhs[0], 0, "eta_threshold_p", etaTpPtr);
         }
         else
         {
@@ -313,39 +303,33 @@ void mexFunction(int nlhs, mxArray *plhs[],
             mxSetData(xlpPtr, (mxArray **)mxRealloc(mxGetData(xlpPtr), xl_dim * xlp_new_size * sizeof(mxArray *)));
             mxSetData(PlpPtr, (mxArray **)mxRealloc(mxGetData(PlpPtr), xl_dim2 * xlp_new_size * sizeof(mxArray *)));
             mxSetData(etapPtr, (mxArray **)mxRealloc(mxGetData(etapPtr), xlp_new_size * sizeof(mxArray *)));
-            mxSetData(etaTpPtr, (mxArray **)mxRealloc(mxGetData(etaTpPtr), xlp_new_size * sizeof(mxArray *)));
         }
         // get pointer to reallocated arrays
         xlp = mxGetPr(xlpPtr);
         Plp = mxGetPr(PlpPtr);
         etap = mxGetPr(etapPtr);
-        etaTp = mxGetPr(etaTpPtr);
     }
     
-    double *xl_tmp, *Pl_tmp, *eta_tmp, *etaT_tmp;
+    double *xl_tmp, *Pl_tmp, *eta_tmp;
     // make temporary copy of arrays
     
     xl += xl_dim * xl_allocated;
     Pl += xl_dim2 * xl_allocated;
     eta += xl_allocated;
-    eta_threshold += xl_allocated;
     
     xlp += xl_dim * xlp_allocated;
     Plp += xl_dim2 * xlp_allocated;
     etap += xlp_allocated;
-    etaTp += xlp_allocated;
     
     if (move_outside_fov > 0)
     {
         xl_tmp = mxCalloc(move_outside_fov*xl_dim*sizeof(double),sizeof(double));
         Pl_tmp = mxCalloc(move_outside_fov*xl_dim2*sizeof(double),sizeof(double));
         eta_tmp = mxCalloc(move_outside_fov*sizeof(double),sizeof(double));
-        etaT_tmp = mxCalloc(move_outside_fov*sizeof(double),sizeof(double));
         
         memcpy(xl_tmp, xl,(xl_dim*move_outside_fov)*sizeof(double));
         memcpy(Pl_tmp, Pl,(xl_dim2*move_outside_fov)*sizeof(double));
         memcpy(eta_tmp, eta,move_outside_fov*sizeof(double));
-        memcpy(etaT_tmp, eta_threshold,move_outside_fov*sizeof(double));
     }
     
     if (move_inside_fov > 0)
@@ -353,7 +337,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
         memcpy(xl, xlp,(xl_dim*move_inside_fov)*sizeof(double));
         memcpy(Pl, Plp,(xl_dim2*move_inside_fov)*sizeof(double));
         memcpy(eta, etap,move_inside_fov*sizeof(double));
-        memcpy(eta_threshold, etaTp,move_inside_fov*sizeof(double));
         
         xl_allocated += move_inside_fov;
     }
@@ -363,14 +346,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
         memcpy(xlp, xl_tmp,(xl_dim*move_outside_fov)*sizeof(double));
         memcpy(Plp, Pl_tmp,(xl_dim2*move_outside_fov)*sizeof(double));
         memcpy(etap, eta_tmp,move_outside_fov*sizeof(double));
-        memcpy(etaTp, etaT_tmp,move_outside_fov*sizeof(double));
         
         xlp_allocated += move_outside_fov;
         
         mxFree(xl_tmp);
         mxFree(Pl_tmp);
         mxFree(eta_tmp);
-        mxFree(etaT_tmp);
     }
     
     const mwSize ndim = 3;
@@ -381,17 +362,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
     mxSetN(xlPtr, xl_allocated);
     mxSetDimensions(PlPtr, dims_xl, ndim);
     mxSetN(etaPtr, xl_allocated);
-    mxSetN(etaThresholdPtr, xl_allocated);
     
     // set the dimensions correctly
     mxSetN(xlpPtr, xlp_allocated);
     mxSetDimensions(PlpPtr, dims_xlp, ndim);
     mxSetN(etapPtr, xlp_allocated);
-    mxSetN(etaTpPtr, xlp_allocated);
-    
 }
 
-void bubblesort(double *eta, double *eta_threshold, double *xl, double *Pl, int size)
+void bubblesort(double *eta, double *xl, double *Pl, int size)
 {
     double temp;
     int xl_dim = 2;
@@ -413,10 +391,6 @@ void bubblesort(double *eta, double *eta_threshold, double *xl, double *Pl, int 
                 eta[i] = eta[i + 1];
                 eta[i + 1] = temp;
                 
-                temp = eta_threshold[i];
-                eta_threshold[i] = eta_threshold[i + 1];
-                eta_threshold[i + 1] = temp;
-                
                 for (int j = 0; j < xl_dim; j++)
                 {
                     temp = xl[i*xl_dim+j];
@@ -435,7 +409,7 @@ void bubblesort(double *eta, double *eta_threshold, double *xl, double *Pl, int 
     }
 }
 
-void fov_bubblesort(int *fov, double *eta, double *eta_threshold, double *xl, double *Pl, int size)
+void fov_bubblesort(int *fov, double *eta, double *xl, double *Pl, int size)
 {
     double temp;
     int xl_dim = 2;
@@ -460,10 +434,6 @@ void fov_bubblesort(int *fov, double *eta, double *eta_threshold, double *xl, do
                 temp = eta[i];
                 eta[i] = eta[i + 1];
                 eta[i + 1] = temp;
-                
-                temp = eta_threshold[i];
-                eta_threshold[i] = eta_threshold[i + 1];
-                eta_threshold[i + 1] = temp;
                 
                 for (int j = 0; j < xl_dim; j++)
                 {

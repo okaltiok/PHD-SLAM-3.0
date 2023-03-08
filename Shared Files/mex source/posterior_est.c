@@ -38,6 +38,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
     /* dimension declarations */
     int xn_dim = mxGetScalar(mxGetField(prhs[1], 0, "xn_dim"));
     int xl_dim = mxGetScalar(mxGetField(prhs[1], 0, "xl_dim"));
+    double etaT = mxGetScalar(mxGetField(prhs[1], 0, "etaT"));
  
     /* get number of particles and find index of maximum weight*/
     mwSize N = mxGetNumberOfElements(prhs[0]);   
@@ -58,24 +59,22 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
     double* xl = mxGetDoubles(mxGetField(prhs[0], jmax, "xl"));
     double* Pl = mxGetDoubles(mxGetField(prhs[0], jmax, "Pl"));
     double* eta = mxGetDoubles(mxGetField(prhs[0], jmax, "eta"));
-    double* eta_threshold = mxGetDoubles(mxGetField(prhs[0], jmax, "eta_threshold"));
     double* xl_p = mxGetDoubles(mxGetField(prhs[0], jmax, "xl_p"));
     double* Pl_p = mxGetDoubles(mxGetField(prhs[0], jmax, "Pl_p"));
     double* eta_p = mxGetDoubles(mxGetField(prhs[0], jmax, "eta_p"));
-    double* eta_threshold_p = mxGetDoubles(mxGetField(prhs[0], jmax, "eta_threshold_p"));
     int xl_N = mxGetN(mxGetField(prhs[0], jmax, "eta"));
     int xlp_N = mxGetN(mxGetField(prhs[0], jmax, "eta_p"));
     
     /* compute number of estimates within the FoV */
     int nk = 0, nk_p = 0; 
     for(int k = 0; k < xl_N; k++) {
-        if(eta[k] > log(eta_threshold[k]))
+        if(eta[k] > etaT)
             nk++; 
     }
     
     /* compute number of estimates outside the FoV */
     for(int k = 0; k < xlp_N; k++) {
-        if(eta_p[k] > log(eta_threshold_p[k]))
+        if(eta_p[k] > etaT)
             nk_p++;
     }
     
@@ -100,7 +99,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
     memcpy(P_hat, Pn, xn_dim*xn_dim*sizeof(double) );
     
     for(int k = 0; k < xl_N; k++) {
-        if(eta[k] > log(eta_threshold[k]))
+        if(eta[k] > etaT)
         {
             memcpy(mu_hat, xl + k*xl_dim, xl_dim*sizeof(double) );
             memcpy(C_hat, Pl + k*xl_dim*xl_dim, xl_dim*xl_dim*sizeof(double) );
@@ -112,7 +111,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
     }
     
     for(int k = 0; k < xlp_N; k++) {
-        if(eta_p[k] > log(eta_threshold_p[k]))
+        if(eta_p[k] > etaT)
         {
             memcpy(mu_hat, xl_p + k*xl_dim, xl_dim*sizeof(double) );
             memcpy(C_hat, Pl_p + k*xl_dim*xl_dim, xl_dim*xl_dim*sizeof(double) );

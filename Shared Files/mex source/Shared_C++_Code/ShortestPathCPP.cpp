@@ -539,7 +539,7 @@ size_t kBest2D(const size_t k,const size_t numRow,const size_t numCol,const bool
             break;
         }
         // terminate hypothesis generation if the ratio is below a threshold
-        if(gainBest[curSweep] - gainBest[0] < threshold)
+        if(gainBest[0] - gainBest[curSweep] < threshold)    
             break;
     }
     

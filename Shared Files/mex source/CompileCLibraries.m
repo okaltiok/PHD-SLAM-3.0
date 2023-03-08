@@ -79,7 +79,12 @@ function CompileCLibraries()
     compile_file = 'cost_matrix.c';
     mex('-R2018a','CXXFLAGS="$CXXFLAGS -std=c++17 -Wall"','-outdir',outdir,...
         model_path, linearAlgebra_path, compile_file, model_file, linearAlgebra_file);
-        
+       
+    fprintf('compiling gmiplid.c\n')
+    compile_file = 'gmiplid.c';
+    mex('-R2018a','CXXFLAGS="$CXXFLAGS -std=c++17 -Wall"','-outdir',outdir,...
+        model_path, linearAlgebra_path, compile_file, model_file, linearAlgebra_file);
+    
     fprintf('compiling hypothesisReductionAlgorithm.c\n')
     compile_file = 'hypothesisReductionAlgorithm.c';
     mex('-R2018a','CXXFLAGS="$CXXFLAGS -std=c++17 -Wall"','-outdir',outdir,...
@@ -89,11 +94,6 @@ function CompileCLibraries()
     compile_file = 'kBest2DAssign.cpp';
     mex('-R2018a','CXXFLAGS="$CXXFLAGS -std=c++17 -Wall"','-outdir',outdir,...
         murty_path, compile_file, murty_file);
-    
-    fprintf('compiling mhrbiploid.c\n')
-    compile_file = 'mhrbiploid.c';
-    mex('-R2018a','CXXFLAGS="$CXXFLAGS -std=c++17 -Wall"','-outdir',outdir,...
-        model_path, linearAlgebra_path, compile_file, model_file, linearAlgebra_file);
     
     fprintf('compiling posterior_est.c\n')
     compile_file = 'posterior_est.c';

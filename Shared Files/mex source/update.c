@@ -52,7 +52,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     mxArray* xl_ptr = mxGetField(plhs[0], 0, "xl");
     mxArray* Pl_ptr = mxGetField(plhs[0], 0, "Pl"); 
     mxArray* eta_ptr = mxGetField(plhs[0], 0, "eta"); 
-    mxArray* eta_threshold_ptr = mxGetField(plhs[0], 0, "eta_threshold"); 
     mxArray* w_ptr = mxGetField(plhs[0], 0, "w"); 
     mxArray* birth_ptr = mxGetField(plhs[0], 0, "birth_y"); 
          
@@ -60,7 +59,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     double* xl = mxGetDoubles(xl_ptr);
     double* Pl = mxGetDoubles(Pl_ptr);
     double* eta = mxGetDoubles(eta_ptr);
-    double* eta_threshold = mxGetDoubles(eta_threshold_ptr);
     double* w = mxGetDoubles(w_ptr);
     double* birth_y = mxGetDoubles(birth_ptr);
     
@@ -75,7 +73,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     double LAMBDA_C = mxGetScalar(mxGetField(prhs[2], 0, "lambda_c"));
     double FOV_RANGE = mxGetScalar(mxGetField(prhs[2], 0, "fov_range"));
     double FOV_ANGLE = mxGetScalar(mxGetField(prhs[2], 0, "fov_angle"));
-    double ETA_THRESHOLD = mxGetScalar(mxGetField(prhs[2], 0, "eta_threshold"));
     
     /* dimension declarations */
     int n_k = (int) mxGetN(xl_ptr);      // number of landmarks
@@ -219,10 +216,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     mxSetDimensions(eta_ptr, eta_dims, 2);
     eta = mxRealloc(eta,(n_k+NDA)*sizeof(double));
     mxSetPr(eta_ptr,eta);
-    
-    mxSetDimensions(eta_threshold_ptr, eta_dims, 2);
-    eta_threshold = mxRealloc(eta_threshold,(n_k+NDA)*sizeof(double));
-    mxSetPr(eta_threshold_ptr,eta_threshold);
 
     mxSetDimensions(Pl_ptr, Pl_dims, 3);
     Pl = mxRealloc(Pl,(n_k+NDA)*xl_dim*xl_dim*sizeof(double));
@@ -233,10 +226,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     for (int i=0; i < n_k; i++)
     {
         eta[i] = log(1 - PD[i]) + eta[i];
-        eta_threshold[i] = (1 - PD[i]) * eta_threshold[i];
     }
     eta += n_k;
-    eta_threshold += n_k;
     Pl += xl_dim*xl_dim*n_k;
 
     double tmp;
@@ -262,14 +253,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                 memcpy(xl+xl_dim*k, xl+xl_dim*j, xl_dim*sizeof(double) );
                 matrixMultiply(xl_dim, h_dim, h_dim, 1, 0, 1, KK+xl_dim*h_dim*j, nu, xl+xl_dim*k);
                 
-                /* update Pl, eta, eta_threshold */
+                /* update Pl, eta */
                 memcpy(Pl, PP+xl_dim*xl_dim*j, xl_dim*xl_dim*sizeof(double) );
                 *eta = L[i*n_k + j] - tmp;
-                *eta_threshold = ETA_THRESHOLD;
                 
                 k++;
                 eta++;
-                eta_threshold++;
                 Pl += xl_dim*xl_dim;
                 birth_flag = 0;
             }

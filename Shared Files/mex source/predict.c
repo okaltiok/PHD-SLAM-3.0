@@ -1,6 +1,5 @@
-//     This function implements the PHD prediction step including the birth 
-//     process that creates new landmarks the propagation of the vehicle
-//     according to the kinematic model and control inputs
+//      This function implements the PHD prediction step and propagation of 
+//      the vehicle according to the kinematic model and control inputs
 // 
 //     Input:
 //        obj        - struct that represent particle n of the PHD-SLAM density at time k-1
@@ -56,7 +55,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     double* Qn = mxGetDoubles(mxGetField(prhs[3], 0, "Qn"));
     double* R = mxGetDoubles(mxGetField(prhs[3], 0, "R"));
     double P_B = mxGetScalar(mxGetField(prhs[3], 0, "P_B"));
-    double threshold = mxGetScalar(mxGetField(prhs[3], 0, "eta_threshold"));
     
     /* dimension declarations */
     int xn_dim = mxGetScalar(mxGetField(prhs[3], 0, "xn_dim"));
@@ -73,12 +71,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         mxArray* xl_ptr = mxGetField(plhs[0], 0, "xl");
         mxArray* Pl_ptr = mxGetField(plhs[0], 0, "Pl");
         mxArray* eta_ptr = mxGetField(plhs[0], 0, "eta");
-        mxArray* eta_threshold_ptr = mxGetField(plhs[0], 0, "eta_threshold");
         
         double* xl = mxGetDoubles(xl_ptr);
         double* Pl = mxGetDoubles(Pl_ptr);
         double* eta = mxGetDoubles(eta_ptr);
-        double* eta_threshold = mxGetDoubles(eta_threshold_ptr);
         
         /* define dimensions of landmark parameters */
         mwSize xl_dims[2] = {xl_dim,n_k + m_k};
@@ -101,10 +97,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         mxSetDimensions(eta_ptr, eta_dims, 2);
         eta = mxRealloc(eta,(n_k+m_k)*sizeof(double));
         mxSetPr(eta_ptr,eta);
-        
-        mxSetDimensions(eta_threshold_ptr, eta_dims, 2);
-        eta_threshold = mxRealloc(eta_threshold,(n_k+m_k)*sizeof(double));
-        mxSetPr(eta_threshold_ptr,eta_threshold);
 
         mxSetDimensions(Pl_ptr, Pl_dims, 3);
         Pl = mxRealloc(Pl,(n_k+m_k)*xl_dim*xl_dim*sizeof(double));
@@ -113,7 +105,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         xl += xl_dim*n_k;
         Pl += xl_dim*xl_dim*n_k;
         eta += n_k;
-        eta_threshold += n_k;
 
         double G[4], GR[4];
         double r, b, s, c;
@@ -141,12 +132,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             matrixMultiply(xl_dim, xl_dim, xl_dim, xl_dim, 1, 0, GR, G, Pl);
             
             *eta = log(P_B);
-            *eta_threshold = threshold;
             
             xl += xl_dim;
             Pl += xl_dim*xl_dim;
             eta++;
-            eta_threshold++;
         }
         // deallocate memory
         birth_y -= m_k*h_dim;

@@ -1,4 +1,5 @@
-//     This function samples from the Gaussian mixture sampling distribution
+//     This function samples from the Gaussian mixture importance density
+//     and updates the particle weight
 // 
 //     Input:
 //        obj        - struct that represent particle n of the PHD-SLAM density
@@ -105,14 +106,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         double x0[3];
         memcpy(x0, xn, xn_dim*sizeof(double));
         
-        // Sample
+        // Sample from the j-th component of the GM-ID
         memcpy(xn, mp + j_idx*xn_dim, xn_dim*sizeof(double));
         matrixMultiply(xn_dim, xn_dim, xn_dim, 1, 0, 1, sqrtP, r_gaussian, xn);
         
-        // add prior to particle weight
+        // add log-likelihood of the prior to particle weight
         loglikelihood(w, x0, Pn, xn, xn_dim);
         
-        // compute prop and add to weight
+        // compute log-likelihood of j-th component of the GM-ID and add
+        // to proposal weight
         double prop = 0.0, L[1];
         for (int j=0; j < J; j++)
         {
