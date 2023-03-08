@@ -16,7 +16,7 @@
     b) Set option = 1 and run the code to create the data.\
     c) Set option = 2 and run the code to perform MCSs. You should get the following result:
     
-       N:1, pos=3.57 [m], Neff=100.00 [%]
+       N:1, pos=3.57 [m], ESS=100.00 [%]
     
     d) The results are stored in the results-folder, and the performance metrics can be computed by setting option = 3 and running the code. 
     
