@@ -3,11 +3,11 @@
 2. PHD-SLAM 3.0 with synthetic data.\
     a) Open file ".\PHD-SLAM-3.0\Synthetic Data\MonteCarloSimulations.m"\
     b) Set option = 1 and run the code to create the data.\
-    c) Set option = 2 and run the code to perform the Monte Carlo simulations (MCSs). This will take some time since it will perform 100 MCS with 1, 10 and 100 particles. You should get the following results:
+    c) Set option = 2 and run the code to perform the Monte Carlo simulations (MCSs). This will take some time since it will perform 100 MCS with 1, 10 and 100        particles. You should get the following results:
     
-        N:1,   Pos.=11.13 [m], Head.=1.33 [deg], GOSPA=102.42 [m], ESS=100.00 [%]
-        N:10,  Pos.=2.20  [m], Head.=0.29 [deg], GOSPA=26.34  [m], ESS=70.03  [%]
-        N:100, Pos.=2.26  [m], Head.=0.30 [deg], GOSPA=25.89  [m], ESS=66.39  [%]
+       N:1, Pos.=3.45 [m], Head.=0.42 [deg], GOSPA=46.84 [m], ESS=100.00 [%]
+       N:10, Pos.=2.66 [m], Head.=0.34 [deg], GOSPA=38.27 [m], ESS=49.34 [%]
+       N:100, Pos.=2.18 [m], Head.=0.29 [deg], GOSPA=32.12 [m], ESS=49.21 [%]
     
     d) The results are stored in the results-folder, and the performance metrics can be computed by setting option = 3 and running the code. 
     
@@ -16,7 +16,7 @@
     b) Set option = 1 and run the code to create the data.\
     c) Set option = 2 and run the code to perform MCSs. You should get the following result:
     
-        N:1, pos=3.91 [m], Neff=100.00 [%]
+       N:1, pos=3.57 [m], Neff=100.00 [%]
     
     d) The results are stored in the results-folder, and the performance metrics can be computed by setting option = 3 and running the code. 
     
