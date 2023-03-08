@@ -5,7 +5,7 @@ function plot_estimate(obj,est,y,k,sim,params)
     %    obj    - a (1 x N) struct that represent the PHD-SLAM density at time k
     %    est    - a struct that represent the vehicle and map estimate at k
     %    y      - a (2 x m_k) matrix that contains the measurements
-    %    k      - sample number
+    %    k      - time step
     %    sim    - struct containing the simulation data
     %    params - simulation parameters
     %
@@ -37,7 +37,7 @@ function plot_estimate(obj,est,y,k,sim,params)
             ax = gca;
         end
 
-        % illustrate every 10th time instant to speed up visualization 
+        % illustrate 1st and every 10th time instant to speed up visualization 
         if k == 1 || mod(k,10) == 0
             
             % project measurements to 2D Euclidean space
@@ -75,7 +75,6 @@ function plot_estimate(obj,est,y,k,sim,params)
 
             catch
                 % initialize handles to plots
-
                 h(1) = plot(ax,sim.map(1,:),sim.map(2,:),'ks');
                 
                 % initialize map with dummy variables

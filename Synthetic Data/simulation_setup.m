@@ -1,10 +1,11 @@
-function [params,sim,filename] = simulation_setup(file_idx,mode)
+function [params,sim,filename] = simulation_setup(file_idx,mode,MEX)
     % This function is used to generate the data and configure the 
     % parameters or load the data from a file
     %
     % Input:
     %    file_idx   - file identifier
-    %    mode       - either 'load' or 'save'
+    %    mode       - either 'load' or 'create'
+    %    MEX        - false use Matlab m-implementation, true use Matlab MEX-implementation
     %
     % Output:
     %    params     - simulation parameters
@@ -29,7 +30,7 @@ function [params,sim,filename] = simulation_setup(file_idx,mode)
     
     switch mode
         case 'load'
-            [params, sim] = load_data(filename);
+            [params, sim] = load_data(filename,MEX);
         case 'create'
             [params, sim] = create_data(file_idx);
         otherwise
@@ -37,15 +38,15 @@ function [params,sim,filename] = simulation_setup(file_idx,mode)
     end
 end
 
-function [params, sim] = load_data(filename)
+function [params, sim] = load_data(filename,MEX)
     % load data
     j = 0;
     while 1
         try
             loaded_struct = load(filename,'params','sim');
-                params = loaded_struct.params;
-                sim = loaded_struct.sim;
-                break;
+            params = loaded_struct.params;
+            sim = loaded_struct.sim;
+            break;
         catch
             j = j + 1;
             fprintf('load error: %d\n',j);
@@ -56,26 +57,31 @@ function [params, sim] = load_data(filename)
         end
     end
     
-    % get current folder and define path names
+    % store MEX flag
+    params.MEX = MEX;
+    
+    % define Matlab-paths, get current folder and define path names
     folderParts = strsplit(pwd, filesep);
+    shared_m_path = strjoin([folderParts(1:end-1) ['Shared Files',filesep,'shared m files']], filesep);
     mex_path = strjoin([folderParts 'compiled_mex'], filesep);
     m_path = strjoin([folderParts(1:end-1) ['Shared Files',filesep,'m source']], filesep);
-    shared_m_path = strjoin([folderParts(1:end-1) ['Shared Files',filesep,'shared m files']], filesep);
-    victoria_park_path = strjoin([folderParts(1:end-1) ['Victoria Park',filesep,'compiled_mex']], filesep);
     
-    % add / remove paths 
+    % add / remove paths
     if ~contains(path,shared_m_path), addpath(shared_m_path); end
-    if contains(path,victoria_park_path), rmpath(victoria_park_path); end
-    if params.MEX 
+    if params.MEX
         if ~contains(path,mex_path), addpath(mex_path); end
         if contains(path,m_path), rmpath(m_path); end
     else
         if ~contains(path,m_path), addpath(m_path); end
         if contains(path,mex_path), rmpath(mex_path); end
     end
+    
+    % remove path to other data set
+    victoria_park_path = strjoin([folderParts(1:end-1) ['Victoria Park',filesep,'compiled_mex']], filesep);
+    if contains(path,victoria_park_path), rmpath(victoria_park_path); end
 
     % initialize the random number generator
-    rng(params.seed)
+    rng(params.seed)    
 end
 
 function [params, sim] = create_data(file_idx)
@@ -93,11 +99,11 @@ function [params, sim] = create_data(file_idx)
         'Robot_Groundtruth', ...
         'Robot_Control');
 
-    map = Landmark_Groundtruth(:,2:3)'; % landmarks
-
-    sim = '';
+    % landmarks
+    map = Landmark_Groundtruth(:,2:3)'; 
 
     % initial state and arrays
+    sim = '';
     sim.state = zeros(params.xn_dim,params.T);
     sim.P0 = zeros(params.xn_dim);
     sim.x0 = Robot_Groundtruth(:,1);
@@ -148,7 +154,9 @@ function [params, sim] = create_data(file_idx)
 
         % add noise and remove meas. that are misdetected
         y = h + sqrtR*randn(params.h_dim,N+N_clutter);
-        y = y(:,rand(1,N+N_clutter) <= params.P_D);
+        detected = rand(1,N+N_clutter) <= params.P_D;
+        
+        y = y(:,detected);
 
         % handle wrap around
         y(2,:) = mod(y(2,:) + pi,2*pi) - pi;
@@ -159,7 +167,7 @@ function [params, sim] = create_data(file_idx)
         sim.o_time{1,k} = t;
         sim.odometry{1,k} = Robot_Control(:,k) + sqrtQ*randn(params.u_dim,1);
         sim.u_time{1,k} = t;
-
+        
         t = t + params.dt;
     end
 end
@@ -168,7 +176,6 @@ function params = initialize_parameters
     % This method initializes the parameters
 
     % general
-    params.MEX = true;                                             % MEX flag
     params.f_mode = true;                                          % plot flag
     params.visualize_passive_components = true;                    % plot components outside FOV flag
     params.T = 4000;                                               % simulation length
@@ -190,19 +197,18 @@ function params = initialize_parameters
     params.gating_size = chi2inv(1 - params.P_G,2);                % gating threshold value
     params.w_min =  log(1e-6);                                     % pruning threshold
     params.merging_threshold = 50;                                 % merging threshold
-    params.eta_threshold = 0.7;                                    % threshold of landmark estimate
+    params.etaT = log((1-params.P_D)^2);                           % threshold of landmark estimate
 
-    % PF and OID parameters
+    % PF and importance density parameters
     params.resample = false;                                       % resample flag
     params.N_particle = 1;                                         % number of particles
+    params.T_eff = 0.2;                                            % resampling threshold
     params.N_eff = 0;                                              % effective sample size
     params.J = 50;                                                 % max number of assignments computed using Murty's algorithm
     params.DA_threshold = log(10^(-3));                            % threshold to stop Murty's algorithm at n-th iteration, if gain[1] - gain[n] < params.DA_threshold 
-    params.L = 5;                                                  % max number of OID iterations
-    params.epsilon = 1e-3;                                         % threshold value used to evaluate convergence of the iterative OID approximation
-    params.kappa = 1e-6;                                           % test statistic tail probability  
-    params.gamma = chi2inv(1 - params.kappa , (0:100)*2);          % test statistic value used to evaluate goodness of the linearization
-    
+    params.L = 5;                                                  % max number of IPL iterations
+    params.epsilon = 1e-3;                                         % threshold value used to evaluate convergence of the iterative importance density approximation
+
     % model parameters
     params.xn_dim = 3;                                             % vehicle dimension
     params.xl_dim = 2;                                             % landmark dimension                 

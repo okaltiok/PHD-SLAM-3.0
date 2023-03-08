@@ -1,4 +1,4 @@
-function [sim,position,heading,d_gospa] = performance_summary(params,sim)
+function [position,heading,d_gospa] = performance_summary(params,sim)
     % This function calculates the performance metrics
 
     % Input:
@@ -6,7 +6,6 @@ function [sim,position,heading,d_gospa] = performance_summary(params,sim)
     %    sim        - struct containing the simulation data
     %
     % Output:
-    %    sim        - struct containing the simulation data
     %    position   - (1 x K) position error
     %    heading    - (1 x K) heading error
     %    d_gospa    - (1 x K) GOSPA
@@ -23,13 +22,6 @@ function [sim,position,heading,d_gospa] = performance_summary(params,sim)
     %    this code granted that the author of the original code is 
     %    mentioned as the original author of the code.
     
-    % if resample flag is false, get trajectory with maximum weight and use
-    % that as the estimate
-    if ~params.resample
-        [~,j] = max(sim.WW(:,end));
-        sim.MM = squeeze(sim.XX(:,j,:));
-    end
-
     T = params.T;
     map = sim.map;
     state = sim.state;

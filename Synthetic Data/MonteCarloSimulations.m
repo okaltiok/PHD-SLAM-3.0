@@ -18,7 +18,7 @@ function MonteCarloSimulations
     % set option = 2 to run MCS
     % set option = 3 to compute performance metrics
     
-    option = 1;
+    option = 3;
     
     % number of simulations
     MCS = 100;
@@ -47,10 +47,12 @@ function generate_data(MCS)
     folderParts = strsplit(pwd, filesep);
     meas_path = strjoin([folderParts 'measurements' 'SD data set'], filesep);
     m_path = strjoin([folderParts(1:end-1) 'Shared Files' 'm source'], filesep);
+    shared_path = strjoin([folderParts(1:end-1) 'Shared Files' 'shared m files'], filesep);
     
     % add measurement path to measurements and m files
     if ~contains(path,meas_path), addpath(meas_path); end
     if ~contains(path,m_path), addpath(m_path); end
+    if ~contains(path,shared_path), addpath(shared_path); end
     
     % create data and save
     pw = PoolWaitbar(MCS, 'Creating data, please wait ...');
@@ -65,6 +67,7 @@ function generate_data(MCS)
     % remove created paths
     rmpath(meas_path);
     rmpath(m_path);
+    rmpath(shared_path);
 end
 
 function perform_mcs(MCS)
@@ -74,67 +77,60 @@ function perform_mcs(MCS)
 
     % create filename
     if strcmp(filesep,'\')
-         filename = strjoin([{'results\'} 'PHD_J%dL%dN%d.mat'], filesep);
+         filename = strjoin([{'results\'} 'PHD_N%d.mat'], filesep);
     else
-         filename = strjoin([{'results'} 'PHD_J%dL%dN%d.mat'], filesep);
+         filename = strjoin([{'results'} 'PHD_N%d.mat'], filesep);
     end
     
-    % define variables
-    N = logspace(0,2,3);    % Particle number
-    L = 5;                  % Maximum number of IPL iterations
-    J = 50;                 % Maximum number of GM-OID components
+    N = logspace(0,2,3)';    % Particle number
     resample = true;        % resample flag
-    
-    for n = N
+    for j = 1:size(N,1)
         POS_E = cell(MCS,1);
         THETA_E = cell(MCS,1);
         GOSPA_D = cell(MCS,1);
         CPU = cell(MCS,1);
         N_EFF = cell(MCS,1);
-        
+
         % If Parallel Computing Toolbox isn't installed, replace
         % parfor-loop with a regular for-loop.
         pw = PoolWaitbar(MCS, 'Simulation in progress, please wait ...');
         parfor i = 1:MCS
             [POS_E{i,1},THETA_E{i,1},GOSPA_D{i,1},CPU{i,1},N_EFF{i,1}] = ...
-                main(i,false,L,J,n,resample);
+                main(i,false,N(j),resample);
             increment(pw)
         end
         delete(pw)
         
         gospa_d = cell2mat(GOSPA_D);
         fprintf('N:%d, Pos.=%.2f [m], Head.=%.2f [deg], GOSPA=%.2f [m], ESS=%.2f [%%]\n', ...
-            n, ...
+            N(j), ...
             sqrt(mean(cell2mat(POS_E).^2,'all','omitnan')), ...
             sqrt(mean(cell2mat(THETA_E).^2,'all','omitnan'))*180/pi, ...
             mean(gospa_d(:,end),'all'), ...
             mean(cell2mat(N_EFF),'all')*100);
         
         % save MCS results
-        save(sprintf(filename,J,L,n),'POS_E','THETA_E','GOSPA_D','CPU','N_EFF')
+        save(sprintf(filename,N(j)),'POS_E','THETA_E','GOSPA_D','CPU','N_EFF')
     end
 end
 
 function compute_performance_metrics
     % create filename
     if strcmp(filesep,'\')
-        filename = strjoin([{'results\'} 'PHD_J%dL%dN%d.mat'], filesep);
+        filename = strjoin([{'results\'} 'PHD_N%d.mat'], filesep);
     else
-        filename = strjoin([{'results'}  'PHD_J%dL%dN%d.mat'], filesep);
+        filename = strjoin([{'results'} 'PHD_N%d.mat'], filesep);
     end
     
-    % define variables
-    N = logspace(0,2,3);    % Particle number
-    L = 5;
-    J = 50;
-    
-    for n = N
+    % Particle number
+    N = logspace(0,2,3)';    
+    for j = 1:size(N,1)
         try
-            load(sprintf(filename,J,L,n),'POS_E','THETA_E','GOSPA_D','N_EFF');
+            load(sprintf(filename,N(j)),'POS_E','THETA_E','GOSPA_D','CPU','N_EFF');
             
             gospa_d = cell2mat(GOSPA_D);
             fprintf('N:%d, Pos.=%.2f [m], Head.=%.2f [deg], GOSPA=%.2f [m], ESS=%.2f [%%]\n', ...
-                n, ...
+                N(j), ...
                 sqrt(mean(cell2mat(POS_E).^2,'all','omitnan')), ...
                 sqrt(mean(cell2mat(THETA_E).^2,'all','omitnan'))*180/pi, ...
                 mean(gospa_d(:,end),'all'), ...

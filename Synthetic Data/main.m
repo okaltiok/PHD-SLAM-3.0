@@ -5,10 +5,8 @@ function varargout = main(varargin)
     % Input:
     %    varargin{1}         - file identifier
     %    varargin{2}         - plot mode
-    %    varargin{3}         - L, max number of OID iterations
-    %    varargin{4}         - J, max number of GMM OID components
-    %    varargin{5}         - N, particle number
-    %    varargin{6}         - resample, true or false
+    %    varargin{3}         - N, particle number
+    %    varargin{4}         - resample, true or false
     %
     % Output:
     %    varargout{1}        - (1 X T) vector of position errors
@@ -28,30 +26,31 @@ function varargout = main(varargin)
     % Copyright notice: You are free to modify, extend and distribute 
     %    this code granted that the author of the original code is 
     %    mentioned as the original author of the code.
-    
+
+    % set to true to use MEX implementation
+    MEX = false;
+          
     % load simulation parameters
     if nargin == 0
-        file_idx = 1;
-        [params,sim,~] = simulation_setup(file_idx,'load');
+        file_idx = 3;
+        [params,sim,~] = simulation_setup(file_idx,'load',MEX);
         maxNumCompThreads(1); % force maximum number of computation threads to one
         clear plot_estimate
     else
-        [params,sim,~] = simulation_setup(varargin{1},'load');
+        [params,sim,~] = simulation_setup(varargin{1},'load',MEX);
         params.f_mode = varargin{2}; 
-        params.L = varargin{3};
-        params.J = varargin{4};
-        params.N_particle = varargin{5};
-        params.resample = varargin{6};
+        params.N_particle = varargin{3};
+        params.resample = varargin{4};
         if params.resample
-            params.N_eff = params.N_particle/2;
+            params.N_eff = params.T_eff*params.N_particle;
         else
             params.N_eff = 0;
         end
-    end 
-    
+    end
+
     % initialize PHD-SLAM density and arrays to store data
     [obj,sim] = initialize(sim,params);
-    
+
     % last observation and control times
     t_prev = [];
     u_prev = [];
@@ -67,9 +66,9 @@ function varargout = main(varargin)
         t_prev = sim.o_time{k};
         u_prev = sim.odometry{k};
         
-        % perform one iteration of the filter
+        % perform one iteration of the PHD-SLAM filter
         [obj,est] = rbpf_phd(obj,y,u,t,params);
-        
+
         % store data for evaluation purposes
         sim.XX(:,:,k) = [obj.xn];
         sim.WW(:,k) = [obj.w];
@@ -83,11 +82,11 @@ function varargout = main(varargin)
         % illustrate
         plot_estimate(obj,est,y,k,sim,params)
     end
-
+    
     if nargin == 0
         params.f_mode = true;
     end
-    [sim,pos_e,theta_e,gospa_d] = performance_summary(params,sim);
+    [pos_e,theta_e,gospa_d] = performance_summary(params,sim);
     
     if nargin > 0 
         varargout{1} = pos_e;
