@@ -11,8 +11,8 @@ have been originally developed by David Crouse and can be found from:
 https://github.com/USNavalResearchLaboratory/TrackerComponentLibrary
 
 To reduce computational complexity, the original code has been modified to terminate hypothesis generation 
-whenever the likelihood of the next hypothesis is below some fixed percentage of the likelihood of the 
-first and most likely hypothesis as described in [2].
+whenever the cost of the most likely hypotheses is below some fixed percentage of the cost of the next hypotheses
+as described in [2].
 
 
 
@@ -35,7 +35,7 @@ Author   : Ossi Kaltiokallio
            ossi.kaltiokallio@tuni.fi
 Tested   : Matlab version 9.8.0.1359463 (R2020a) Update 1
 
-Copyright (c) 2022, Ossi Kaltiokallio
+Copyright (c) 2023, Ossi Kaltiokallio
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
