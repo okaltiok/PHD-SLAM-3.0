@@ -49,7 +49,6 @@ function [Neff,obj] = resample(obj, params)
 
 	% compute effective number of samples
     Neff = 1/sum(w.^2);
-    
     if params.resample && Neff <= params.N_eff
         wn = w.*N;
         
