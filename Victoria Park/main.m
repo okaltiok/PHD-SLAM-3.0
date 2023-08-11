@@ -40,7 +40,7 @@ function varargout = main(varargin)
         params.N_particle = varargin{3};
         params.resample = varargin{4};
         if params.resample
-            params.N_eff = params.T_eff*params.N_particle;
+            params.N_eff = 1;
         else
             params.N_eff = 0;
         end
@@ -79,8 +79,9 @@ function varargout = main(varargin)
             sim.PP(:,:,j) = est.P_hat;
             sim.MM_map{1,j} = est.mu_hat;
             sim.PP_map{1,j} = est.C_hat;
-            sim.Neff(1,j) = est.Neff;
             sim.cpu_time(j) = est.dt;
+            sim.Neff(j) = est.Neff;
+            sim.resample(j) = est.resample;
             
             % illustrate 
             plot_estimate(obj,est,y,j,sim,params)
@@ -104,6 +105,7 @@ function varargout = main(varargin)
         varargout{1} = pos_e;
         varargout{2} = sim.cpu_time;
         varargout{3} = sim.Neff;
+        varargout{4} = sim.resample;
     end
     clear('params','sim','obj')
 end

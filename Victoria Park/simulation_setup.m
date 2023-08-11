@@ -191,10 +191,9 @@ function params = initialize_parameters
     params.etaT = log((1-params.P_D)^2);                           % threshold of landmark estimate
 
     % PF and OID parameters
-    params.resample = false;                                       % resample flag
+    params.resample = true;                                       % resample flag
     params.N_particle = 1;                                         % number of particles
-    params.T_eff = 0.2;                                            % resampling threshold
-    params.N_eff = 0;                                              % effective sample size
+    params.N_eff = 1;                                              % effective sample size
     params.J = 50;                                                % max number of assignments computed using Murty's algorithm
     params.DA_threshold = log(10^(-3));                            % threshold to stop Murty's algorithm at n-th iteration, if gain[1] - gain[n] < params.DA_threshold 
     params.L = 5;                                                  % max number of OID iterations
