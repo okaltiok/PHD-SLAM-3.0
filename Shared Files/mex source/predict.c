@@ -161,7 +161,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             /* compute mean and Jacobians */
             f_func(xn, u, dt, mu, Fx, Fu);
 
-            /* compute Pn = Fx*Pn*Fx' + Pn*/
+            /* compute Pn = Fx*Pn*Fx' + Qn*/
             matrixMultiply(xn_dim, xn_dim, xn_dim, xn_dim, 0, 0, Fx, Pn, FXP);
             matrixMultiply(xn_dim, xn_dim, xn_dim, xn_dim, 1, 0, FXP, Fx, Pn);
 

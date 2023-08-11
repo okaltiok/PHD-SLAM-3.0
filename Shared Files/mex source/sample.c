@@ -24,7 +24,6 @@
 //        this code granted that the author of the original code is 
 //        mentioned as the original author of the code. 
 
-//#include "models.h"
 #include "linearAlgebra.h"
 #include "mex.h"
 #include "matrix.h"

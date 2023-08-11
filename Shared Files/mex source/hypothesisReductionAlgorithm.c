@@ -63,7 +63,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
             *mxGetPr(mxGetField(prhs[1], 0, "range_buffer")),2);
     double FOV_ANGLE = *mxGetPr(mxGetField(prhs[1], 0, "fov_angle")) +
             *mxGetPr(mxGetField(prhs[1], 0, "angle_buffer"));
-    double etaT = log(mxGetScalar(mxGetField(prhs[1], 0, "P_B")));
     
     int xl_dim = (int)mxGetM(xlPtr);
     int n_k = (int)mxGetN(xlPtr);
@@ -226,7 +225,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
         else
             in_fov[i] = 1;
         
-        if (in_fov[i] == 0 && eta[i] <= etaT)
+        if (in_fov[i] == 0 && eta[i] <= w_min)
             in_fov[i] = -1;
 
         if (in_fov[i] == 0)

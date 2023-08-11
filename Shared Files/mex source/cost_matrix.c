@@ -1,7 +1,7 @@
 //     This function computes the cost matrix and detection probability
 // 
 //     Input:
-//        obj - struct that represent particle n of the PHD-SLAM density
+//        obj        - struct that represent particle n of the PHD-SLAM density
 //        Y          - {2 x m_k} matrix containing the measurements
 //        params     - simulation parameters
 //     
@@ -21,6 +21,7 @@
 //        this code granted that the author of the original code is 
 //        mentioned as the original author of the code.
 
+            
 #include "models.h"
 #include "linearAlgebra.h"
 #include "mex.h"

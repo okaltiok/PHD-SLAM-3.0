@@ -49,7 +49,7 @@ function CompileCLibraries()
     %    this code granted that the author of the original code is 
     %    mentioned as the original author of the code.
 
-    opt = 2; % datasets = {'Synthetic Data','Victoria Park'};
+    opt = 1; % datasets = {'Synthetic Data','Victoria Park'};
     
     clear mex
     
