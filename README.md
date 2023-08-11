@@ -5,9 +5,9 @@
     b) Set option = 1 and run the code to create the data.\
     c) Set option = 2 and run the code to perform the Monte Carlo simulations (MCSs). This will take some time since it will perform 100 MCS with 1, 10 and 100        particles. You should get the following results:
     
-       N:1, Pos.=3.45 [m], Head.=0.42 [deg], GOSPA=46.84 [m], ESS=100.00 [%]
-       N:10, Pos.=2.66 [m], Head.=0.34 [deg], GOSPA=38.27 [m], ESS=49.34 [%]
-       N:100, Pos.=2.18 [m], Head.=0.29 [deg], GOSPA=32.12 [m], ESS=49.21 [%]
+       N:1,   POS.=3.45 [m], HEAD.=0.42 [deg], GOSPA=46.84 [m], ESS=100.00 [%], RESAMP=0.00 [%]
+       N:10,  POS.=2.66 [m], HEAD.=0.34 [deg], GOSPA=38.27 [m], ESS= 49.34 [%], RESAMP=5.14 [%]
+       N:100, POS.=2.18 [m], HEAD.=0.29 [deg], GOSPA=32.12 [m], ESS= 49.21 [%], RESAMP=9.42 [%]
     
     d) The results are stored in the results-folder, and the performance metrics can be computed by setting option = 3 and running the code. 
     
@@ -16,7 +16,9 @@
     b) Set option = 1 and run the code to create the data.\
     c) Set option = 2 and run the code to perform MCSs. You should get the following result:
     
-       N:1, pos=3.57 [m], ESS=100.00 [%]
+       N:1,  POS.=3.57 [m], ESS=100.00 [%], RESAMP=0.00 [%]
+       N:5,  POS.=3.38 [m], ESS= 25.17 [%], RESAMP=0.49 [%]
+       N:10, POS.=3.36 [m], ESS= 13.88 [%], RESAMP=0.39 [%]
     
     d) The results are stored in the results-folder, and the performance metrics can be computed by setting option = 3 and running the code. 
     
