@@ -58,4 +58,5 @@ function [obj,sim] = initialize(sim,params)
     sim.PP_map = cell(1,params.T);
     sim.cpu_time = zeros(1,params.T);
     sim.Neff = zeros(1,params.T);
+    sim.resample = zeros(1,params.T);
 end

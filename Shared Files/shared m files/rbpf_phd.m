@@ -1,4 +1,4 @@
-function [obj,est,da] = rbpf_phd(obj,y,u,t,params)
+function [obj,est] = rbpf_phd(obj,y,u,t,params)
     % This function performs one iteration of the PHD-SLAM filter recursion 
     % including prediction, computing the proposal, sampling, update, map
     % pruning, estimation and resampling
@@ -56,7 +56,7 @@ function [obj,est,da] = rbpf_phd(obj,y,u,t,params)
                 % solve ranked assignment problem
                 [col4rowBest,~,~] = kBest2DAssign(-L,params.J,false,params.DA_threshold);
                 
-                % compute partitioned GM-ID approximation
+                % compute parameters of GM-ID approximation
                 [wp,mp,Pp] = gmiplid(obj_i,double(col4rowBest),y,log(P_D),params);
             end
             iPrevParent = iParent;
@@ -76,8 +76,9 @@ function [obj,est,da] = rbpf_phd(obj,y,u,t,params)
     % estimate and resample
     est = posterior_est(obj,params);
     
-    [Neff,obj] = resample(obj, params);
+    [Neff,flag,obj] = resample(obj, params);
 
     est.Neff = Neff/N;
+    est.resample = flag;
     est.dt = toc;
 end

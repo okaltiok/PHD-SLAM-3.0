@@ -1,4 +1,4 @@
-function [Neff,obj] = resample(obj, params)
+function [Neff,flag,obj] = resample(obj, params)
     %RESAMPSTR Stratified resampling
     %
     %   In stratified resampling indices are sampled using random
@@ -18,10 +18,12 @@ function [Neff,obj] = resample(obj, params)
     %
     % Input:
     %    obj    - a (1 x N) struct that represent the PHD-SLAM density
-    %    Nmin   - threshold of resampling
+    %    params - simulation parameters
     %    
-    %    obj    - a resampled (1 x N) struct that represent the PHD-SLAM density
+    % Output:
     %    Neff   - Effective sample size
+    %    flag   - true if resampling is performed
+    %    obj    - a resampled (1 x N) struct that represent the PHD-SLAM density
     %
     % Modified by : Ossi Kaltiokallio
     %               Tampere University, Department of Electronics and
@@ -31,9 +33,15 @@ function [Neff,obj] = resample(obj, params)
     % Last Rev    : 1/3/2022
     % Tested      : Matlab version 9.8.0.1359463 (R2020a) Update 1
     
-    % normalize log weights 
-    N = params.N_particle;
     
+    N = params.N_particle;
+    flag = 0;
+    if N == 1
+        Neff = 1;
+        return
+    end
+    
+    % normalize log weights 
     log_w = [obj.w];
     max_log_w = -Inf;
     for i = 1:N
@@ -50,6 +58,7 @@ function [Neff,obj] = resample(obj, params)
 	% compute effective number of samples
     Neff = 1/sum(w.^2);
     if params.resample && Neff <= params.N_eff
+        flag = 1;
         wn = w.*N;
         
         s=zeros(N,1);

@@ -1,5 +1,4 @@
-function [d_gospa, x_to_y_assignment, decomposed_cost] = ...
-    GOSPA(x_mat, y_mat, p, c, alpha)
+function [d_gospa, x_to_y_assignment, decomposed_cost] = GOSPA(x_mat, y_mat, p, c, alpha)
 % AUTHOR: Abu Sajana Rahmathullah
 % DATE OF CREATION: 7 August, 2017
 %
