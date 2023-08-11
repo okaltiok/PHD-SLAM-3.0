@@ -102,12 +102,10 @@ function perform_mcs(MCS)
         end
         delete(pw)
         
-        print_performance_metrics(N(j),POS_E,CPU,N_EFF,RESAMP);
-        
         % save MCS results
-        save(sprintf(filename,N(j)),'POS_E','CPU','N_EFF')
+        save(sprintf(filename,N(j)),'POS_E','CPU','N_EFF','RESAMP')
+        print_performance_metrics(N(j),POS_E,CPU,N_EFF,RESAMP);
     end
-    
 end
 
 function compute_performance_metrics   
@@ -119,18 +117,19 @@ function compute_performance_metrics
     end
     
     N = [1 5 10]';    % Particle number
-    try
-        % load data
-        load(sprintf(filename,N),'POS_E','N_EFF');
-        print_performance_metrics(N,POS_E,CPU,N_EFF,RESAMP)
-    catch
-        fprintf('Can''t load file, incorrect filename!\n')
+    for j = 1:size(N,1)
+        try
+            % load data
+            load(sprintf(filename,N(j)),'POS_E','CPU','N_EFF','RESAMP')
+            print_performance_metrics(N(j),POS_E,CPU,N_EFF,RESAMP);
+        catch
+            fprintf('Can''t load file, incorrect filename!\n')
+        end
     end
 end
 
 
 function print_performance_metrics(N,POS_E,CPU,N_EFF,RESAMP)
-
     pos_e = cell2mat(POS_E);
     cpu = cell2mat(CPU);
     neff = cell2mat(N_EFF);
