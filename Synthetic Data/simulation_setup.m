@@ -200,7 +200,7 @@ function params = initialize_parameters
     params.etaT = log((1-params.P_D)^2);                           % threshold of landmark estimate
 
     % PF and importance density parameters
-    params.resample = false;                                       % resample flag
+    params.resample = true;                                        % resample flag
     params.N_particle = 1;                                         % number of particles
     params.T_eff = 0.2;                                            % resampling threshold
     params.N_eff = 0;                                              % effective sample size

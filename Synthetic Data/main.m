@@ -14,6 +14,7 @@ function varargout = main(varargin)
     %    varargout{3}        - (1 X T) vector containing GOSPA
     %    varargout{4}        - (1 x T) vector of excecution times for each time instant
     %    varargout{5}        - (1 x T) vector that containts the N_eff for each time instant
+    %    varargout{6}        - (1 x T) vector that containts the resampling flag for each time instant
     %
     % Author   : Ossi Kaltiokallio
     %            Tampere University, Department of Electronics and
@@ -29,10 +30,10 @@ function varargout = main(varargin)
 
     % set to true to use MEX implementation
     MEX = true;
-          
+        
     % load simulation parameters
     if nargin == 0
-        file_idx = 1;
+        file_idx = 10;
         [params,sim,~] = simulation_setup(file_idx,'load',MEX);
         maxNumCompThreads(1); % force maximum number of computation threads to one
         clear plot_estimate
@@ -76,8 +77,9 @@ function varargout = main(varargin)
         sim.PP(:,:,k) = est.P_hat;
         sim.MM_map{1,k} = est.mu_hat;
         sim.PP_map{1,k} = est.C_hat;
-        sim.Neff(1,k) = est.Neff;
         sim.cpu_time(k) = est.dt;
+        sim.Neff(k) = est.Neff; 
+        sim.resample(k) = est.resample;
         
         % illustrate
         plot_estimate(obj,est,y,k,sim,params)
@@ -94,6 +96,7 @@ function varargout = main(varargin)
         varargout{3} = gospa_d;
         varargout{4} = sim.cpu_time;
         varargout{5} = sim.Neff;
+        varargout{6} = sim.resample;
     end
     clear('params','sim','obj')
 end

@@ -33,14 +33,14 @@ function [position,heading,d_gospa] = performance_summary(params,sim)
     % compute GOSPA 
     d_gospa = nan(1,T);
     if 1
+        % only for the final map
         if isempty(sim.MM_map{1,T})
             d_gospa(1,T) = size(map,2)*(20^2)/2;
         else
-            % only the final map
             [d_gospa(1,T), ~, ~] = GOSPA(map, sim.MM_map{1,T}, 2, 20, 2);
         end
     else
-        % all time steps
+        % for all time steps
         FoV = zeros(1,size(map,2));
         for k = 1:T
             
@@ -62,7 +62,7 @@ function [position,heading,d_gospa] = performance_summary(params,sim)
     
     if params.f_mode
         % print performance metrics
-        fprintf('N:%d, L:%d, J:%d, pos=%.2f [m], theta=%.2f [deg], gospa=%.2f [m], cpu=%.2f [ms], Time=%.2f [s], Neff=%.2f [%%]\n', ...
+        fprintf('N:%d, L:%d, J:%d, pos=%.2f [m], theta=%.2f [deg], gospa=%.2f [m], cpu=%.2f [ms], Time=%.2f [s], Neff=%.2f [%%], Resample==%.2f [%%]\n', ...
             params.N_particle, ...
             params.L, ...
             params.J, ...
@@ -71,7 +71,8 @@ function [position,heading,d_gospa] = performance_summary(params,sim)
             mean(d_gospa(1,T)), ...
             mean(sim.cpu_time)*1000, ...
             sum(sim.cpu_time), ...
-            mean(sim.Neff)*100);
+            mean(sim.Neff)*100, ...
+            sum(sim.resample)/params.T*100);
 
         % illustrate estimated trajectory and map
         figure(1); clf; box on; hold on; grid on;

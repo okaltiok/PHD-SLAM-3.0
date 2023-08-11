@@ -18,7 +18,7 @@ function MonteCarloSimulations
     % set option = 2 to run MCS
     % set option = 3 to compute performance metrics
     
-    option = 1;
+    option = 2;
     
     % number of simulations
     MCS = 100;
@@ -90,27 +90,21 @@ function perform_mcs(MCS)
         GOSPA_D = cell(MCS,1);
         CPU = cell(MCS,1);
         N_EFF = cell(MCS,1);
+        RESAMP = cell(MCS,1);
 
         % If Parallel Computing Toolbox isn't installed, replace
         % parfor-loop with a regular for-loop.
         pw = PoolWaitbar(MCS, 'Simulation in progress, please wait ...');
         parfor i = 1:MCS
-            [POS_E{i,1},THETA_E{i,1},GOSPA_D{i,1},CPU{i,1},N_EFF{i,1}] = ...
+            [POS_E{i,1},THETA_E{i,1},GOSPA_D{i,1},CPU{i,1},N_EFF{i,1},RESAMP{i,1}] = ...
                 main(i,false,N(j),resample);
             increment(pw)
         end
         delete(pw)
         
-        gospa_d = cell2mat(GOSPA_D);
-        fprintf('N:%d, Pos.=%.2f [m], Head.=%.2f [deg], GOSPA=%.2f [m], ESS=%.2f [%%]\n', ...
-            N(j), ...
-            sqrt(mean(cell2mat(POS_E).^2,'all','omitnan')), ...
-            sqrt(mean(cell2mat(THETA_E).^2,'all','omitnan'))*180/pi, ...
-            mean(gospa_d(:,end),'all'), ...
-            mean(cell2mat(N_EFF),'all')*100);
-        
         % save MCS results
-        save(sprintf(filename,N(j)),'POS_E','THETA_E','GOSPA_D','CPU','N_EFF')
+        save(sprintf(filename,N(j)),'POS_E','THETA_E','GOSPA_D','CPU','N_EFF','RESAMP')
+        print_performance_metrics(N(j),POS_E,THETA_E,GOSPA_D,CPU,N_EFF,RESAMP);
     end
 end
 
@@ -126,17 +120,28 @@ function compute_performance_metrics
     N = logspace(0,2,3)';    
     for j = 1:size(N,1)
         try
-            load(sprintf(filename,N(j)),'POS_E','THETA_E','GOSPA_D','CPU','N_EFF');
-            
-            gospa_d = cell2mat(GOSPA_D);
-            fprintf('N:%d, Pos.=%.2f [m], Head.=%.2f [deg], GOSPA=%.2f [m], ESS=%.2f [%%]\n', ...
-                N(j), ...
-                sqrt(mean(cell2mat(POS_E).^2,'all','omitnan')), ...
-                sqrt(mean(cell2mat(THETA_E).^2,'all','omitnan'))*180/pi, ...
-                mean(gospa_d(:,end),'all'), ...
-                mean(cell2mat(N_EFF),'all')*100);
+            load(sprintf(filename,N(j)),'POS_E','THETA_E','GOSPA_D','CPU','N_EFF','RESAMP');
+            print_performance_metrics(N(j),POS_E,THETA_E,GOSPA_D,CPU,N_EFF,RESAMP);
         catch
             fprintf('Can''t load file, incorrect filename!\n')
         end
     end
+end
+
+function print_performance_metrics(N,POS_E,THETA_E,GOSPA_D,CPU,N_EFF,RESAMP)
+    pos_e = cell2mat(POS_E);
+    theta_e = cell2mat(THETA_E);
+    gospa_d = cell2mat(GOSPA_D);
+    cpu = cell2mat(CPU);
+    neff = cell2mat(N_EFF);
+    resamp = cell2mat(RESAMP);
+
+    fprintf('N:%d, POS.=%.2f [m], HEAD.=%.2f [deg], GOSPA=%.2f [m], ESS=%.2f [%%], RESAMP=%.2f [%%], CPU=%.2f [ms], TIME=%.2f [s]\n', ...
+        N, ...
+        sqrt(mean(pos_e.^2,'all','omitnan')), ...
+        sqrt(mean(theta_e.^2,'all','omitnan'))*180/pi, ...
+        mean(gospa_d(:,end),'all'), ...
+        mean(neff,'all','omitnan')*100, ...
+        (sum(resamp,'all')./numel(resamp))*100, ...
+        mean(cpu,'all')*1000, mean(sum(cpu,2)));
 end
