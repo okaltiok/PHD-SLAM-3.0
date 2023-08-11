@@ -1,5 +1,5 @@
 function obj = update(obj,y,params)
-    % This function computes the update step of PHD-SLAM  filter
+    % This function computes update step of the PHD-SLAM  filter
 
     % Input:
     %    obj        - struct that represent particle n of the PHD-SLAM density at time k | k-1

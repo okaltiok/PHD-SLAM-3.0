@@ -2,7 +2,7 @@ function [P_D, L] = cost_matrix(obj, Y, params)
     % This function computes the cost matrix and detection probability
 
     % Input:
-    %    obj - struct that represent particle n of the PHD-SLAM density
+    %    obj        - struct that represent particle n of the PHD-SLAM density
     %    Y          - {2 x m_k} matrix containing the measurements
     %    params     - simulation parameters
     %
@@ -41,8 +41,8 @@ function [P_D, L] = cost_matrix(obj, Y, params)
     for i = 1:n_k       
         L(i,m_k+i) = log(1 - P_D(i)) + eta(i);
         
-        % compute predicted measurement and Jacobian 
         if P_D(i) > 0
+            % compute predicted measurement and Jacobian 
             [h,Hl,Hn] = h_func(xn,xl(:,i));
 
             % compute innovation covariance

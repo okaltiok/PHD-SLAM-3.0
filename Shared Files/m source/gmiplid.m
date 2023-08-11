@@ -51,7 +51,7 @@ function [WPI,MPI,PPI] = gmiplid(obj,col4row,y,P_D,params)
     
     % compute IPL-OID approximation for each GMM component
     for j = 1:J
-        % obtain gamma threshold from a lookup table
+        % initialize linearization density
         mpi = msp;
         Ppi = Psp;
         

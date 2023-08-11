@@ -166,7 +166,7 @@ function obj =  hypothesisReductionAlgorithm(obj,params)
             xl_fov(i,1) = 0;
         end
         
-        if xl_fov(i,1) == 0 && eta(i) < params.etaT
+        if xl_fov(i,1) == 0 && eta(i) <= w_min
             xl_fov(i,1) = -1;
         end
     end
