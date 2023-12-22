@@ -1,3 +1,5 @@
+The projects contains an implementation of PHD-SLAM 3.0 which is a partitioned multi-hypotheses sampling distribution for particle filtering-based SLAM algorithms. The details of the algorithm are presented in the paper "A Multi-Hypotheses Importance Density for SLAM in Cluttered Scenarios" [1].
+
 1. Download the project to your computer.
 
 2. PHD-SLAM 3.0 with synthetic data.\
@@ -12,7 +14,7 @@
     d) The results are stored in the results-folder, and the performance metrics can be computed by setting option = 3         and running the code. 
     
 3. PHD-SLAM 3.0 with Victoria Park data set.\
-    a) Download "victoria_park.zip" from [1] and unzip the folder in to "Victoria Park/measurements/VP data set"\
+    a) Download "victoria_park.zip" from [2] and unzip the folder in to "Victoria Park/measurements/VP data set"\
     b) Open file ".\PHD-SLAM-3.0\Victoria Park\MonteCarloSimulations.m"\
     c) Set option = 1 and run the code to create the data.\
     d) Set option = 2 and run the code to perform MCSs. You should get the following result:
@@ -30,5 +32,7 @@
 
 References:
 
-[1] “Victoria park SLAM data set,” Jose Guivant, Australian Centre for Field Robotics - The University of Sydney.\ Accessed Dec. 21, 2023. [Online]. Available: http://www-personal.acfr.usyd.edu.au/nebot/victoria_park.htm
+[1] O. Kaltiokallio et al., "A Multi-Hypotheses Importance Density for SLAM in Cluttered Scenarios," in IEEE Transactions on Robotics, doi: 10.1109/TRO.2023.3338975
+
+[2] “Victoria park SLAM data set,” Jose Guivant, Australian Centre for Field Robotics - The University of Sydney.\ Accessed Dec. 21, 2023. [Online]. Available: http://www-personal.acfr.usyd.edu.au/nebot/victoria_park.htm
 
