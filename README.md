@@ -34,5 +34,5 @@ References:
 
 [1] O. Kaltiokallio, R. Hostettler, Y. Ge, H. Kim, J. Talvitie, H. Wymeersch and M. Valkama, "A Multihypotheses Importance Density for SLAM in Cluttered Scenarios," in IEEE Transactions on Robotics, vol. 40, pp. 1019-1035, 2024, doi: 10.1109/TRO.2023.3338975.
 
-[2] “Victoria park SLAM data set,” Jose Guivant, Australian Centre for Field Robotics - The University of Sydney.\ Accessed Dec. 21, 2023. [Online]. Available: http://www-personal.acfr.usyd.edu.au/nebot/victoria_park.htm
+[2] “Victoria park SLAM data set,” Jose Guivant, Australian Centre for Field Robotics - The University of Sydney. Accessed Dec. 21, 2023. [Online]. Available: http://www-personal.acfr.usyd.edu.au/nebot/victoria_park.htm
 
